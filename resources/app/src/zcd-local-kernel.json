@@ -11,14 +11,14 @@
     "build-record.json": "1f39264d2edfa9ff4da8c6fbb91591385ffaed4045f6da5771c56fec48a56797",
     "source-changes.patch": "7ac9f7b4d107170c11520f5898aa57d7ec2c5ad2c55ab2047e5b8d2330864f51"
   },
-  "source": "https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/xmrig-cpu-6.26.0-cpu.2",
+  "source": "https://github.com/lemo1bot/env-miner-windows",
   "license": "GPL-3.0-or-later",
   "captureOutput": true,
   "kernelFee": 0,
   "hardware": "CPU",
-  "url": "https://github.com/AlexZeroZero/GozeroAssistant/releases/download/xmrig-cpu-6.26.0-cpu.2/Gozero-XMRig-CPU-6.26.0-cpu.2-win-x64.zip",
+  "url": "https://github.com/lemo1bot/env-miner-windows/releases/download/v1.0.0/Gozero-XMRig-CPU-6.26.0-cpu.2-win-x64.zip",
   "sha256": "cad2c8eec2fcbd8a6e744c663d32b1163d2e24bcb15b21bfc94311a822db236f",
   "archiveRoot": "",
-  "sourceCode": "https://github.com/AlexZeroZero/GozeroAssistant/releases/tag/xmrig-cpu-6.26.0-cpu.2",
+  "sourceCode": "https://github.com/lemo1bot/env-miner-windows",
   "upstreamSource": "https://github.com/xmrig/xmrig/tree/b2ca72480c58d197e18c885d9fc1a0c8d517e60a"
 }

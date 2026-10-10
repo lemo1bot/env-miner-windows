@@ -49,7 +49,7 @@ Windows 拒绝启动 Seine（错误码 5）。请查看安全软件拦截记录�
 Seine 原版 GitHub · 内核费 2.5%（bntpool 1%）· 软件服务费 0.5% · SHA256 校验|Seine upstream GitHub · Kernel fee 2.5% (bntpool 1%) · App fee 0.5% · SHA256 verified|Seine 公式 GitHub · カーネル料 2.5%（bntpool 1%）· アプリ料 0.5% · SHA256 検証|Seine GitHub автора · Сбор ядра 2,5% (bntpool 1%) · Сбор приложения 0,5% · Проверка SHA256
 Seine 内核费 2.5%（bntpool 1%）· 软件服务费 0.5%|Seine kernel fee 2.5% (bntpool 1%) · App fee 0.5%|Seine カーネル料 2.5%（bntpool 1%）· アプリ料 0.5%|Сбор Seine 2,5% (bntpool 1%) · Сбор приложения 0,5%
 内核费 2.5%（bntpool 1%）|Kernel fee 2.5% (bntpool 1%)|カーネル料 2.5%（bntpool 1%）|Сбор ядра 2,5% (bntpool 1%)
-自动调优仅适用于 Gozero BNT 内核|Auto-tuning is only available for the Gozero BNT kernel|自動調整は Gozero BNT カーネルのみ対応|Автонастройка доступна только для ядра Gozero BNT
+自动调优仅适用于 .env BNT 内核|Auto-tuning is only available for the .env BNT kernel|自動調整は .env BNT カーネルのみ対応|Автонастройка доступна только для ядра .env BNT
 Seine 0.2.15 仅支持 stratum+tcp 矿池地址|Seine 0.2.15 supports only stratum+tcp pool addresses|Seine 0.2.15 は stratum+tcp のプールのみ対応|Seine 0.2.15 поддерживает только адреса пула stratum+tcp
 请先下载并安装 Seine 内核|Download and install the Seine kernel first|まず Seine カーネルをダウンロードしてインストールしてください|Сначала скачайте и установите ядро Seine
 Seine 运行失败|Seine stopped with an error|Seine 実行エラー|Ошибка работы Seine
@@ -225,11 +225,11 @@ NVIDIA Compute Capability ≥ 8.0；RTX 30 / 40 / 50 系列|NVIDIA compute capab
 矿池挖矿，无需本地全节点；每张显卡独立分配 nonce。启动先执行算法自检。|Pool mining; no local node. Independent GPU nonce namespaces; startup algorithm self-test.|プール採掘、ローカルノード不要。GPU ごとに nonce を分離し、起動時に自己テスト。|Майнинг в пуле без локального узла. Отдельные nonce для GPU; самотест при запуске.
 NOID 原生 Windows CUDA · 严格校验地址、任务期限与难度；合并挖矿暂未开放。|Native Windows NOID CUDA; validates address, job expiry and target. Merged mining unavailable.|Windows ネイティブ NOID CUDA。アドレス・期限・難易度を検証。マージマイニング未対応。|NOID CUDA для Windows: проверка адреса, срока задания и цели. Объединённый майнинг недоступен.
 自有内核费 0% · 软件服务费 0.5%|Own kernel fee 0%; application fee 0.5%|独自カーネル手数料 0%、ソフト利用料 0.5%|Комиссия ядра 0%; комиссия приложения 0.5%
-默认推荐 · Gozero NOID CUDA 0.2.2|Recommended · Gozero NOID CUDA 0.2.2|推奨 · Gozero NOID CUDA 0.2.2|Рекомендуется · Gozero NOID CUDA 0.2.2
-Gozero NOID CUDA 0.2.2 · 自编译|Gozero NOID CUDA 0.2.2 · Own build|Gozero NOID CUDA 0.2.2 · 独自ビルド|Gozero NOID CUDA 0.2.2 · Своя сборка
+默认推荐 · .env NOID CUDA 0.2.2|Recommended · .env NOID CUDA 0.2.2|推奨 · .env NOID CUDA 0.2.2|Рекомендуется · .env NOID CUDA 0.2.2
+.env NOID CUDA 0.2.2 · 自编译|.env NOID CUDA 0.2.2 · Own build|.env NOID CUDA 0.2.2 · 独自ビルド|.env NOID CUDA 0.2.2 · Своя сборка
 校验通过 · NOID|Verified · NOID|検証済み · NOID|Проверено · NOID
-Gozero助手 · 悬浮监控|Gozero Assistant · Monitor|Gozeroアシスタント · モニター|Gozero Ассистент · Монитор
-Gozero助手|Gozero Assistant|Gozeroアシスタント|Gozero Ассистент
+.env助手 · 悬浮监控|.env Miner · Monitor|.envアシスタント · モニター|.env Ассистент · Монитор
+.env助手|.env Miner|.envアシスタント|.env Ассистент
 设备总览|Hardware|デバイス一覧|Оборудование
 收益测试|Profit test|収益テスト|Тест доходности
 挖矿工作台|Mining|マイニング|Майнинг
@@ -594,7 +594,7 @@ PRL / QTC：KRig 上游支持 NVIDIA 与 AMD；本版按 PCI 地址启动独立�
 内核安装并校验完成，尚未开始挖矿|Engine installed and verified; mining not started|内核導入・検証完了。採掘は未開始|Ядро установлено и проверено; майнинг не запущен
 设置已保存|Settings saved|設定を保存しました|Настройки сохранены
 日志已导出|Logs exported|ログを出力しました|Журнал экспортирован
-请使用 GozerAssistant.exe 打开此界面，浏览器不能读取本机硬件。|Open with GozerAssistant.exe; browsers cannot read local hardware.|GozerAssistant.exeで開いてください。ブラウザーでは機器を取得できません。|Откройте GozerAssistant.exe; браузер не читает оборудование ПК.
+请使用 env.exe 打开此界面，浏览器不能读取本机硬件。|Open with env.exe; browsers cannot read local hardware.|env.exeで開いてください。ブラウザーでは機器を取得できません。|Откройте env.exe; браузер не читает оборудование ПК.
 更新中|Updating|更新中|Обновление
 来源异常|Source error|ソース異常|Ошибка источника
 缓存 / 过期|Cached / stale|キャッシュ / 期限切れ|Кэш / устарело
@@ -652,7 +652,7 @@ PRL / QTC：KRig 上游支持 NVIDIA 与 AMD；本版按 PCI 地址启动独立�
 错误|Error|エラー|Ошибка
 失败|Failed|失敗|Ошибка
 超时|Timeout|タイムアウト|Тайм-аут
-Gozero 软件服务费 · 0.5%|Gozero service fee · 0.5%|Gozeroソフト手数料 · 0.5%|Комиссия Gozero · 0.5%
+.env 软件服务费 · 0.5%|.env service fee · 0.5%|.envソフト手数料 · 0.5%|Комиссия .env · 0.5%
 挖矿与收益测试自动按0.5%计费，无需勾选。约199分钟有效GPU运行时间累计最多60秒服务时段。服务时段临时将矿工收款地址切换为下列地址，再恢复你的钱包；切换有重连开销。短测试的零碎服务时间保存于本机；累计满60秒后，在下一次任务开始先结算，再开始完整60秒采样。停止任务同时停止计费调度。|Mining and tests automatically incur 0.5%. About 199 minutes of effective GPU runtime accrues up to 60 seconds of fee mining. The wallet temporarily switches to the addresses below, then back; reconnecting has overhead. Fractional test fee time is saved locally; at 60 seconds it is settled before the next full 60-second test. Stopping a task also stops fee scheduling.|採掘とテストは自動で0.5%課金。約199分の有効GPU稼働で最大60秒の手数料期間が累積します。その間は下記アドレスに切り替え、その後元に戻ります。再接続の負荷があります。短いテストの端数時間はローカル保存し、60秒累積後の次回開始時に精算してから60秒測定します。停止で課金制御も止まります。|Майнинг и тесты: автоматическая комиссия 0,5%. За примерно 199 минут работы GPU накапливается до 60 секунд майнинга комиссии. Кошелёк временно меняется на адреса ниже, затем возвращается; переподключение требует времени. Доли времени тестов хранятся локально; накопленные 60 секунд отрабатываются до следующего полного теста. Остановка прекращает и планирование комиссии.
 目标为同设备长周期0.5%算力时间。不是逐份额分流，币量受算力变化、有效份额、矿池门槛及结算影响；不承诺每100币恰好支付0.5币。切换、异常、停止可在日志查询，未满时段余额留存本机，不提前收费。|Target: 0.5% of long-run hashrate time on the same device, not share-by-share routing. Coin amounts depend on rate, accepted shares and pool settlement; exactly 0.5 coins per 100 is not guaranteed. Switches, faults and stops are logged. Unsettled time stays local without advance charges.|目標は同一機器の長期ハッシュ時間の0.5%で、シェア毎の分配ではありません。報酬は速度・有効シェア・閾値・精算に依存し、100コイン毎に正確に0.5コインとは限りません。切替・異常・停止はログに記録。未精算時間はローカル保存し、前払いしません。|Цель — 0,5% времени хешрейта на том же устройстве, а не доля каждой шары. Монеты зависят от хешрейта, принятых шар и расчётов пула; ровно 0,5 из 100 не гарантируется. Переключения, сбои и остановки в журнале. Неотработанное время хранится локально без авансовой платы.
 软件费与KRig内核费、矿池费分开：KRig在Kryptex池0%，其他池最低3%；电费另算。停止任务或明确退出程序会结束用户与服务时段的所有任务；关闭X收起窗口后任务继续。|App, KRig and pool fees are separate: KRig is 0% at Kryptex, at least 3% elsewhere; electricity is extra. Stop or Exit ends all user and fee tasks. Closing X hides the window and keeps tasks running.|ソフト・KRig・プール手数料は別。KRigはKryptexで0%、他は最低3%。電気代別。停止または明示終了でユーザーと手数料の全タスクを終了。Xで格納した場合は継続します。|Комиссии ПО, KRig и пула отдельные: KRig — 0% в Kryptex, от 3% в других пулах; электричество отдельно. Стоп или Выход завершают все задачи. X скрывает окно, задачи продолжаются.
@@ -777,7 +777,7 @@ NVIDIA 传感器暂不可用：|NVIDIA sensors unavailable:|NVIDIAセンサー�
 信息监控已建立基线|Monitoring baseline established|監視基準を作成しました|База наблюдения создана
 已跟踪|Tracking|追跡中|Отслеживается
 个 PoW 资产。后续记录新收录、≤5分钟价格变化≥2%、相同配置收益上升≥10%；15分钟去重。|PoW assets. Tracks new listings, ≥2% moves within 5 min and ≥10% profit rise with the same config; 15-min deduplication.|PoW資産。新規追加・5分以内2%以上の変動・同設定10%以上の収益増を追跡。15分間重複排除。|активов PoW. Новые монеты, ≥2% за 5 мин и ≥10% дохода при тех же настройках; без повторов 15 мин.
-硬件扫描组件缺失，请完整解压新版 Gozero助手后重试|Hardware scanner missing; fully extract the latest Gozero Assistant|スキャナーがありません。新版Gozeroアシスタントを完全展開してください|Сканер отсутствует; полностью распакуйте новую версию Gozero
+硬件扫描组件缺失，请完整解压新版 .env助手后重试|Hardware scanner missing; fully extract the latest .env Miner|スキャナーがありません。新版.envアシスタントを完全展開してください|Сканер отсутствует; полностью распакуйте новую версию .env
 硬件扫描超时，请稍后重新扫描；若持续失败，请检查 Windows WMI 服务|Hardware scan timed out; retry, then check Windows WMI if it persists|機器スキャンがタイムアウト。再試行し、続く場合はWindows WMIを確認|Тайм-аут сканирования; повторите, затем проверьте службу Windows WMI
 Windows 阻止了硬件扫描组件，请检查系统应用控制或安全软件的拦截记录|Windows blocked the scanner; check application-control or security logs|Windowsがスキャナーをブロック。アプリ制御・セキュリティログを確認|Windows заблокировала сканер; проверьте журналы контроля приложений или защиты
 Windows 硬件信息服务暂不可用，请检查 WMI 服务后重新扫描|Windows hardware information unavailable; check WMI and rescan|Windows機器情報を取得不可。WMI確認後に再スキャン|Служба сведений об оборудовании недоступна; проверьте WMI
@@ -795,7 +795,7 @@ TSC Windows 内核尚未接入|TSC Windows engine unavailable|TSC Windows内核�
 无法写入内核目录，请检查该目录的写入权限|Cannot write engine folder; check permissions|内核フォルダーに書込不可。権限を確認|Не удаётся записать в каталог ядра; проверьте права
 无法写入内核文件，请检查文件占用与磁盘空间|Cannot write engine file; check file locks and disk space|内核ファイルに書込不可。使用中状態と空き容量を確認|Не удаётся записать ядро; проверьте блокировки и место на диске
 内核解压失败，请重试|Engine extraction failed; retry|内核の展開失敗。再試行|Ошибка распаковки ядра; повторите
-解压组件缺失，请重新解压完整的 Gozero助手安装包|Extractor missing; re-extract the full Gozero Assistant package|展開コンポーネントなし。全パッケージを再展開|Распаковщик отсутствует; распакуйте полный пакет Gozero
+解压组件缺失，请重新解压完整的 .env助手安装包|Extractor missing; re-extract the full .env Miner package|展開コンポーネントなし。全パッケージを再展開|Распаковщик отсутствует; распакуйте полный пакет .env
 系统阻止启动解压组件，请检查文件访问权限|System blocked extractor; check file permissions|システムが展開処理をブロック。ファイル権限を確認|Система блокирует распаковщик; проверьте права
 内核解压超时，请检查磁盘状态后重试|Extraction timed out; check disk and retry|展開タイムアウト。ディスクを確認して再試行|Тайм-аут распаковки; проверьте диск
 内核解压组件运行失败，请重新解压完整安装包后重试|Extractor failed; re-extract full package and retry|展開コンポーネント失敗。全パッケージを再展開|Ошибка распаковщика; распакуйте весь пакет заново
@@ -873,7 +873,7 @@ PRL 地址应以 prl1 开头|PRL address must start with prl1|PRLアドレスは
 Tiger Pool 单位 N/s 近24H有效奖励|Tiger Pool effective 24h reward per N/s|Tiger PoolのN/s単位の24時間有効報酬|Эффективная награда Tiger Pool за 24 ч на N/s
 Kryptex 同币种同算法单位算力日产出|Kryptex daily yield per rate for same coin / algorithm|Kryptexの同コイン・方式の単位速度日次産出|Суточный выход Kryptex на хешрейт той же монеты / алгоритма
 基准全网算力 / 当前全网算力（奖励机制不变假设）|baseline network rate / current rate (assuming unchanged rewards)|基準全体速度 / 現在全体速度（報酬方式一定と仮定）|базовый / текущий хешрейт сети (при неизменной награде)
-Gozero 全节点|Gozero full node|Gozeroフルノード|Полный узел Gozero
+.env 全节点|.env full node|.envフルノード|Полный узел .env
 未知币种|Unknown coin|不明なコイン|Неизвестная монета
 此币种矿池账本接口尚未适配|Pool ledger API unsupported for this coin|このコインのプール台帳APIは未対応|API счёта пула для монеты не подключён
 保存收款地址后自动查询矿池账本|Auto-query pool ledger after saving wallet|受取アドレス保存後にプール台帳を自動照会|Автозапрос счёта пула после сохранения кошелька
@@ -921,14 +921,14 @@ Gozero 全节点|Gozero full node|Gozeroフルノード|Полный узел Go
 有|Found|該当|Найдено
 新增中英日俄语言切换，主窗口、悬浮卡片与托盘菜单同步并记忆|Added Chinese, English, Japanese and Russian with synchronized app, floating monitor and tray menus|中国語・英語・日本語・ロシア語切替を追加。画面・カード・トレイを同期し記憶|Добавлены китайский, английский, японский и русский; язык окон и трея синхронизируется и сохраняется
 悬浮卡片停止状态加粗放大，保留历史算力参考|Floating stopped status is larger and bold; historical hashrate retained|カードの停止表示を太字で拡大。過去のハッシュレートは保持|Статус остановки крупнее и жирнее; прошлый хешрейт сохранён
-官网链接更新为 https://gozero.trade/|Official website updated to https://gozero.trade/|公式サイトを https://gozero.trade/ に更新|Официальный сайт изменён на https://gozero.trade/
+官网链接更新为 https://tensorcash.org/|Official website updated to https://tensorcash.org/|公式サイトを https://tensorcash.org/ に更新|Официальный сайт изменён на https://tensorcash.org/
 清理使用说明中的旧版更新记录，整理为1.0 Beta使用指南|Replaced old guide history with current 1.0 Beta instructions|旧更新履歴を整理し1.0 Betaの使用ガイドに更新|Старая история в инструкции заменена руководством 1.0 Beta
 安装、选卡、挖矿、收益、性能预算与托盘操作统一按当前版本说明|Updated installation, GPU selection, mining, income, performance and tray instructions|導入・GPU選択・採掘・収益・性能・トレイ操作を現行版に統一|Инструкции установки, выбора GPU, майнинга, дохода, нагрузки и трея обновлены
 `;
  const catalog=Object.create(null);
- catalog['Gozero XMRig 内核费 0% · 软件服务费 0.5%']=['Gozero XMRig fee 0% · App fee 0.5%','Gozero XMRig 手数料 0% · ソフト手数料 0.5%','Gozero XMRig: 0% · Комиссия приложения: 0.5%'];
- catalog['默认推荐 · Gozero XMRig CPU · 内核费 0%']=['Recommended · Gozero XMRig CPU · Miner fee 0%','推奨 · Gozero XMRig CPU · 採掘手数料 0%','Рекомендуется · Gozero XMRig CPU · Комиссия ядра 0%'];
- catalog['Gozero XMRig CPU 6.26.0-cpu.2 · 内核费 0%']=['Gozero XMRig CPU 6.26.0-cpu.2 · Miner fee 0%','Gozero XMRig CPU 6.26.0-cpu.2 · 採掘手数料 0%','Gozero XMRig CPU 6.26.0-cpu.2 · Комиссия ядра 0%'];
+ catalog['.env XMRig 内核费 0% · 软件服务费 0.5%']=['.env XMRig fee 0% · App fee 0.5%','.env XMRig 手数料 0% · ソフト手数料 0.5%','.env XMRig: 0% · Комиссия приложения: 0.5%'];
+ catalog['默认推荐 · .env XMRig CPU · 内核费 0%']=['Recommended · .env XMRig CPU · Miner fee 0%','推奨 · .env XMRig CPU · 採掘手数料 0%','Рекомендуется · .env XMRig CPU · Комиссия ядра 0%'];
+ catalog['.env XMRig CPU 6.26.0-cpu.2 · 内核费 0%']=['.env XMRig CPU 6.26.0-cpu.2 · Miner fee 0%','.env XMRig CPU 6.26.0-cpu.2 · 採掘手数料 0%','.env XMRig CPU 6.26.0-cpu.2 · Комиссия ядра 0%'];
  catalog['官方 XMRig 6.26.0 · 内核费 1%']=['Official XMRig 6.26.0 · Miner fee 1%','公式 XMRig 6.26.0 · 採掘手数料 1%','Официальный XMRig 6.26.0 · Комиссия ядра 1%'];
 
  catalog['工作台']=['Workbench','ワークベンチ','Рабочая панель'];

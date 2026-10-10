@@ -22,7 +22,7 @@ Download the standalone preconfigured package:
 - **Pearl (PRL)** - PearlHash (`KRig`)
 - **QTC** - Poseidon2 (`KRig` / `.env QTC Engine`)
 - **NOID** - (`Suprminer`)
-- **TSC** - (`Racer`)
+- **TensorCash (TSC)** - Tensor PoW (`KRig` / `.env TSC GPU Engine`)
 
 ---
 

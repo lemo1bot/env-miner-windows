@@ -11,7 +11,7 @@ function network(raw,now=Date.now()){
  if(raw?.token?.token_symbol!=='YSR'||raw.token.decimals!==8||!Number.isSafeInteger(raw.height)||raw.height<0)throw Error('YSR 网络数据身份或高度无效');
  const difficulty=Number(raw.difficultyWert??raw.difficulty),reward=Number(raw.nextReward)/1e8,networkHash=Number(raw.hashrate);
  if(!Number.isFinite(difficulty)||difficulty<=0||!Number.isFinite(reward)||reward<0||!Number.isFinite(networkHash)||networkHash<0)throw Error('YSR 网络数据无效');
- return {coin:'YSR',name:'YSKAR',algorithm:'SHA-256d / 136-byte header',unit:'H/s',height:raw.height,difficulty,difficultyText:String(raw.difficultyWert??raw.difficulty),networkHash,networkUnit:'H/s',networkAt:now,networkStale:false,networkSource:'Gozero YSR',price:null,priceAt:null,priceSource:null,priceStale:true,coinsPerUnitDay:reward*86400/(difficulty*65536),referenceAt:now,referenceStale:false,basis:'YSR 当前难度 × SHA-256d 尝试次数估算；随机出块，非保证收益',reward,blockSeconds:Number(raw.targetBlockTime)||600,models:[],fetchedAt:now,sourceUrl:p.PUBLIC_API,error:null};
+ return {coin:'YSR',name:'YSKAR',algorithm:'SHA-256d / 136-byte header',unit:'H/s',height:raw.height,difficulty,difficultyText:String(raw.difficultyWert??raw.difficulty),networkHash,networkUnit:'H/s',networkAt:now,networkStale:false,networkSource:'.env YSR',price:null,priceAt:null,priceSource:null,priceStale:true,coinsPerUnitDay:reward*86400/(difficulty*65536),referenceAt:now,referenceStale:false,basis:'YSR 当前难度 × SHA-256d 尝试次数估算；随机出块，非保证收益',reward,blockSeconds:Number(raw.targetBlockTime)||600,models:[],fetchedAt:now,sourceUrl:p.PUBLIC_API,error:null};
 }
 function amount(v){if(typeof v!=='string'||!/^\d{1,30}$/.test(v))return null;const n=Number(v)/1e8;return Number.isFinite(n)?n:null}
 function account(raw,wallet){

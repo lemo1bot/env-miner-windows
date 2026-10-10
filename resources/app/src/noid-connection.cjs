@@ -47,7 +47,7 @@ function probe(url, {signal, timeout=5000}={}) {
   try {
    const options={host:u.hostname.replace(/^\[|\]$/g,''),port:Number(u.port)};
    socket=secure?tls.connect({...options,rejectUnauthorized:true,...(!net.isIP(options.host)?{servername:options.host}:{})}):net.connect(options);
-   socket.once(secure?'secureConnect':'connect',()=>socket.write(JSON.stringify({id:1,method:'mining.subscribe',params:['Gozero-connection-check']})+'\n'));
+   socket.once(secure?'secureConnect':'connect',()=>socket.write(JSON.stringify({id:1,method:'mining.subscribe',params:['DotEnv-connection-check']})+'\n'));
    socket.on('data',chunk=>{
     bytes+=chunk.length;
     if(bytes>32768)return finish(Error('矿池响应过大'));
