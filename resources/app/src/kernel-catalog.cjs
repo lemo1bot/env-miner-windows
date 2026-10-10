@@ -8,11 +8,11 @@ function choices(coin){
  if(coin==='ZCD')return[{id:'auto',label:'默认推荐 · .env XMRig CPU · 内核费 0%',disabled:false},{id:require('./zcd-local-kernel.json').id,label:'.env XMRig CPU 6.26.0-cpu.2 · 内核费 0%',disabled:false},{id:'xmrig-zcd-6.26.0',label:'官方 XMRig 6.26.0 · 内核费 1%',disabled:false}];
  if(coin==='YSR')return[{id:'auto',label:'默认推荐 · .env YSR CUDA '+YSR_KERNEL.version,disabled:false},{id:YSR_KERNEL.id,label:'.env YSR CUDA '+YSR_KERNEL.version+' · 内置',disabled:false}];
  if(coin==='NOID')return[{id:'auto',label:'默认推荐 · Suprminer 1.9.27',disabled:false},...Object.values(NOID_KERNELS).map(k=>({id:k.id,label:k.name+' '+k.version+' · 官方下载',disabled:false}))];
- const supported=['PRL','QTC'].includes(coin);
+ const supported=['PRL','QTC','TSC'].includes(coin);
  const rows=[{id:'auto',label:supported?'默认推荐 · KRig 1.5.4':'默认推荐 · 暂无可用内核',disabled:false}];
  if(supported)rows.push({id:ID,label:'KRig 1.5.4 · 手动指定',disabled:false});
  if(coin==='QTC')rows.push({id:'gozer-qtc-experimental',label:'.env QTC Engine · 实验 / 未接矿池',disabled:true});
- if(coin==='TSC')rows.push({id:'racer-pending',label:'Racer · Windows 待适配',disabled:true});
+ if(coin==='TSC')rows.push({id:'racer-pending',label:'.env TSC GPU Engine · 实验',disabled:false});
  return rows;
 }
 function validChoice(coin,id){return choices(coin).some(c=>!c.disabled&&c.id===id)}
@@ -23,7 +23,6 @@ function resolve(config){
  if(config.coin==='ZCD')return{...(selection==='xmrig-zcd-6.26.0'?require('./zcd-kernel.json'):require('./zcd-local-kernel.json')),selection};
  if(config.coin==='YSR')return{...require('./ysr-kernel.json'),selection};
  if(config.coin==='NOID')return{...(NOID_KERNELS[selection]||NOID_KERNELS['suprminer-noid-1.9.27']),selection};
- if(!['PRL','QTC'].includes(config.coin))throw Error('TSC Windows 内核尚未接入');
  return{id:ID,selection,...KRIG};
 }
 module.exports={KRIG,choices,validChoice,resolve};

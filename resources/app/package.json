@@ -17,11 +17,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/AlexZeroZero/GozeroAssistant.git",
-    "directory": "desktop"
+    "url": "https://github.com/lemo1bot/env-miner-windows.git"
   },
-  "homepage": "https://gozero.trade/",
+  "homepage": "https://github.com/lemo1bot/env-miner-windows",
   "bugs": {
-    "url": "https://github.com/AlexZeroZero/GozeroAssistant/issues"
+    "url": "https://github.com/lemo1bot/env-miner-windows/issues"
   }
 }

@@ -4,6 +4,7 @@ function poolChoices(coin){
  if(coin==='BNT')return[{label:'bntpool.com · TCP',url:'stratum+tcp://bntpool.com:3333'}];
  if(coin==='ZCD')return[{label:'ZCD Community · TCP',url:'stratum+tcp://zcd.stratum.network:3333'}];
  if(coin==='YSR')return[{label:'YSR Community · HTTPS',url:require('./ysr-protocol.cjs').PUBLIC_API}];
+ if(coin==='TSC')return[{label:'Suprnova · TCP 3310',url:'stratum+tcp://tsc.suprnova.cc:3310'}];
  if(coin==='NOID')return[['stratum-apac.suprnova.cc','香港 / APAC'],['noid.suprnova.cc','欧洲'],['stratum-us.suprnova.cc','美国']].map(([host,label])=>({label:'Suprnova · '+label,url:'stratum+ssl://'+host+':3341'}));
  if(!['PRL','QTC'].includes(coin))return [];
  const base=coin.toLowerCase(),port=coin==='PRL'?8048:8049;
