@@ -219,12 +219,15 @@ $('#bnt-connection-check').onclick=()=>action(async()=>{await saveMining();const
   const resultCard = document.getElementById('wallet-result-card');
   const resultTitle = document.getElementById('wallet-result-title');
   const resultAddr = document.getElementById('wallet-result-addr');
+  const resultSeed = document.getElementById('wallet-result-seed');
+  const seedContainer = document.getElementById('wallet-seed-container');
   const resultPriv = document.getElementById('wallet-result-priv');
+  const resultRecovery = document.getElementById('wallet-result-recovery');
   const resultNotes = document.getElementById('wallet-result-notes');
   const resultLinks = document.getElementById('wallet-result-links');
   const copyAddrBtn = document.getElementById('wallet-copy-addr');
+  const copySeedBtn = document.getElementById('wallet-copy-seed');
   const copyPrivBtn = document.getElementById('wallet-copy-priv');
-  const togglePrivBtn = document.getElementById('wallet-toggle-priv');
   const applyBtn = document.getElementById('wallet-apply-btn');
 
   let currentGenerated = null;
@@ -233,13 +236,13 @@ $('#bnt-connection-check').onclick=()=>action(async()=>{await saveMining();const
     if (!genCoinSelect || !genCoinMeta) return;
     const c = genCoinSelect.value;
     const desc = {
-      ZCD: 'RandomX v2 CPU · Permanent 0x02 keypair for Zycord network',
-      BNT: 'Argon2id CPU · Stealth dual-key address for Blocknet network',
-      YSR: 'SHA-256d GPU · Bech32m ysr1 address for YSKAR network',
-      PRL: 'PearlHash GPU · Kryptex-compatible Pearl mainnet address',
-      QTC: 'Poseidon2 GPU · Kryptex-compatible Quantus address',
-      NOID: 'Poseidon2b GPU · Bech32m o1 address for Parano1d / Suprnova',
-      TSC: 'Racer GPU · Tiger Smart Chain tc1q address'
+      ZCD: 'Zycord (ZCD) · RandomX v2 CPU · 12-Word Seed Phrase + Permanent 0x02 stealth address',
+      BNT: 'Blocknet (BNT) · Argon2id CPU · 12-Word Seed Phrase + Dual-key Base58 stealth address',
+      YSR: 'YSKAR (YSR) · SHA-256d NVIDIA GPU · 12-Word Seed Phrase + Bech32m ysr1 address',
+      PRL: 'Pearl (PRL) · PearlHash GPU · 12-Word Seed Phrase + prl1 mainnet address',
+      QTC: 'Quantus (QTC) · Poseidon2 GPU · 12-Word Seed Phrase + Quantum qzo address',
+      NOID: 'Parano1d (NOID) · Poseidon2b GPU · 256-bit wallet.key master secret + o1 address',
+      TSC: 'TensorCash (TSC) · Proof of Inference GPU · 12-Word Seed Phrase + SegWit tc1q address'
     };
     genCoinMeta.textContent = desc[c] || 'Cryptographic mainnet keypair';
   };
@@ -259,15 +262,24 @@ $('#bnt-connection-check').onclick=()=>action(async()=>{await saveMining();const
         currentGenerated = wallet;
 
         resultCard.hidden = false;
-        resultTitle.textContent = `${wallet.name} (${wallet.coin}) · Generated Keypair`;
+        resultTitle.textContent = `${wallet.name} (${wallet.coin}) · Generated Real Keypair`;
         resultAddr.value = wallet.address;
-        resultPriv.value = wallet.privateKey;
-        resultPriv.type = 'password';
-        togglePrivBtn.textContent = 'Show Key';
-        resultNotes.textContent = wallet.notes || 'Native cryptographic address';
-        resultLinks.innerHTML = `<button class="link" onclick="window.gozer.open('${wallet.coin}')">View ${wallet.name} Network ↗</button>`;
+        
+        // Seed phrase rendering
+        if (wallet.seedPhrase && !wallet.seedPhrase.startsWith('Not used')) {
+          seedContainer.hidden = false;
+          const words = wallet.seedPhrase.split(' ');
+          resultSeed.innerHTML = words.map((w, i) => `<span style="display:inline-block;padding:2px 6px;margin:2px 4px;background:#12161f;border:1px solid #1a231f;border-radius:3px"><b style="color:var(--muted)">${i + 1}.</b> <span style="color:#f1fa8c">${w}</span></span>`).join('');
+        } else {
+          seedContainer.hidden = true;
+        }
 
-        toast(`${wallet.coin} wallet generated successfully!`);
+        resultPriv.value = wallet.privateKey;
+        if (resultRecovery) resultRecovery.textContent = wallet.recoveryType;
+        resultNotes.textContent = wallet.notes || 'Native cryptographic address';
+        resultLinks.innerHTML = `<button class="link" onclick="window.gozer.open('${wallet.coin}')">${wallet.name} Website ↗</button>`;
+
+        toast(`${wallet.coin} real wallet generated successfully!`);
       } catch (err) {
         toast(`Error generating wallet: ${err.message}`);
       } finally {
@@ -285,23 +297,19 @@ $('#bnt-connection-check').onclick=()=>action(async()=>{await saveMining();const
     };
   }
 
+  if (copySeedBtn) {
+    copySeedBtn.onclick = () => {
+      if (!currentGenerated?.seedPhrase) return;
+      navigator.clipboard.writeText(currentGenerated.seedPhrase);
+      toast('12-word seed phrase copied! Store it safely.');
+    };
+  }
+
   if (copyPrivBtn) {
     copyPrivBtn.onclick = () => {
       if (!resultPriv.value) return;
       navigator.clipboard.writeText(resultPriv.value);
-      toast('Private key copied! Store it securely.');
-    };
-  }
-
-  if (togglePrivBtn) {
-    togglePrivBtn.onclick = () => {
-      if (resultPriv.type === 'password') {
-        resultPriv.type = 'text';
-        togglePrivBtn.textContent = 'Hide Key';
-      } else {
-        resultPriv.type = 'password';
-        togglePrivBtn.textContent = 'Show Key';
-      }
+      toast('Private key / secret copied! Never share it.');
     };
   }
 

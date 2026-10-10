@@ -24,13 +24,13 @@ const LINKS={
   bntOfficialDownload:'https://github.com/blocknetprivacy/core/releases/download/v0.20.0/blocknet-core-amd64-windows-0.20.0.zip',
   bntOfficialRelease:'https://github.com/blocknetprivacy/core/releases/tag/v0.20.0',
   bntSeineSource:'https://github.com/zpalmtree/seine/releases/tag/v0.2.15',
-  PRL:'https://pool.kryptex.com/prl',
-  QTC:'https://pool.kryptex.com/qtc',
-  TSC:'https://tsc-miner.tiger-pool.com/',
-  NOID:'https://noid.suprnova.cc/StartMining',
+  PRL:'https://compute.pearlresearch.ai/wallet',
+  QTC:'https://www.quantus.com/',
+  TSC:'https://tensorcash.org/',
+  NOID:'https://parano1d.org/',
   YSR:'https://www.yskar.app/',
   ZCD:'https://zycord.com/',
-  BNT:'https://pool.gozero.trade/?coin=bnt&lang=zh#connect',
+  BNT:'https://bntpool.com/',
   kernel:KRIG.source
 };
 const SMOKE=!app.isPackaged&&process.env.GOZER_UI_TEST==='1';

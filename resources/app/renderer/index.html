@@ -75,47 +75,47 @@ The miner will run on your remote server in the background and stream results he
 </article>
 </section>
 <section class="view" id="wallets">
-<div class="section-bar"><b>⚿ Instant Wallet Generator <span class="badge" style="color:var(--green)">CLIENT-SIDE REALTIME</span></b><span class="muted">Generate & inspect mainnet addresses for all minable tokens</span></div>
+<div class="section-bar"><b>⚿ Instant Wallet Generator <span class="badge" style="color:#f1fa8c">CLIENT-SIDE REALTIME</span></b><span class="muted">Generate real seed phrases & keys for minable tokens</span></div>
 
-<article class="panel" style="padding:14px;border-left:3px solid var(--green)">
+<article class="panel" style="padding:14px;border-left:3px solid #f1fa8c">
   <div style="display:flex;align-items:flex-start;gap:12px">
-    <div style="font-size:20px;color:var(--green)">🔒</div>
+    <div style="font-size:22px;color:#f1fa8c">🔒</div>
     <div>
-      <b style="color:var(--green);font-size:12px;display:block;margin-bottom:2px">Zero-Knowledge & Client-Side Security</b>
+      <b style="color:#f1fa8c;font-size:12px;display:block;margin-bottom:2px">Zero-Knowledge & Client-Side Security</b>
       <p style="color:var(--muted);font-size:11px;line-height:1.6;margin:0">
-        All keys and addresses are cryptographically computed in local memory using native cryptography. 
-        <b>We do NOT store, log, or transmit your private keys, seed phrases, or wallet data to any server.</b> 
-        Be sure to securely back up your private keys before closing this screen.
+        All keys and seed phrases are computed locally in memory using native cryptography. 
+        <b>We NEVER store, log, or transmit your private keys or seed phrases to any server.</b> 
+        Write down your recovery phrase or secret key offline before closing this window.
       </p>
     </div>
   </div>
 </article>
 
-<article class="panel" style="margin-top:10px;padding:12px">
-  <div class="panel-head"><b>Select Token to Generate Wallet</b><span>Realtime Cryptographic Keypair</span></div>
-  <div style="display:grid;grid-template-columns:180px 1fr auto;gap:10px;margin-top:10px;align-items:center">
-    <select id="wallet-gen-coin" style="height:32px;font-weight:bold;font-size:12px">
+<article class="panel" style="margin-top:10px;padding:14px">
+  <div class="panel-head"><b>Select Token to Generate Real Wallet</b><span>Cryptographic Keypair & Seed</span></div>
+  <div style="display:grid;grid-template-columns:220px 1fr auto;gap:12px;margin-top:12px;align-items:center">
+    <select id="wallet-gen-coin" style="height:36px;font-size:12px">
       <option value="ZCD">Zycord (ZCD) · CPU</option>
       <option value="BNT">Blocknet (BNT) · CPU</option>
       <option value="YSR">YSKAR (YSR) · NVIDIA</option>
       <option value="PRL">Pearl (PRL) · GPU</option>
       <option value="QTC">Quantus (QTC) · GPU</option>
       <option value="NOID">Parano1d (NOID) · GPU</option>
-      <option value="TSC">TigerSmartChain (TSC)</option>
+      <option value="TSC">TensorCash (TSC) · GPU</option>
     </select>
-    <div id="wallet-coin-meta" style="font-size:11px;color:var(--muted)">Select a token and click 'Generate New Wallet'</div>
-    <button id="wallet-gen-btn" class="primary" style="height:32px;padding:0 18px;font-size:12px">⚡ Generate New Wallet</button>
+    <div id="wallet-coin-meta" style="font-size:11.5px;color:#cfd8dc;line-height:1.4">Select a token and click 'Generate New Wallet'</div>
+    <button id="wallet-gen-btn" class="btn-yellow" style="height:36px;padding:0 20px;font-size:12px">⚡ Generate New Wallet</button>
   </div>
 </article>
 
-<article id="wallet-result-card" class="panel" style="margin-top:10px;padding:14px" hidden>
+<article id="wallet-result-card" class="panel" style="margin-top:10px;padding:16px" hidden>
   <div class="panel-head">
-    <b style="color:var(--green);font-size:13px" id="wallet-result-title">Generated Keypair</b>
-    <span class="badge" style="background:rgba(38,224,127,0.1);color:var(--green);border-color:var(--green)">LIVE IN MEMORY</span>
+    <b style="color:#f1fa8c;font-size:13px" id="wallet-result-title">Generated Keypair</b>
+    <span class="badge" style="background:rgba(241,250,140,0.12);color:#f1fa8c;border-color:#f1fa8c">REALTIME IN-MEMORY</span>
   </div>
 
-  <div style="margin-top:10px">
-    <label style="color:var(--muted);font-size:11px;display:block;margin-bottom:4px">Public Receive Address (Use this in Miner)</label>
+  <div style="margin-top:12px">
+    <label style="color:var(--muted);font-size:11px;display:block;margin-bottom:4px">Public Receive Address (Enter this in your Miner)</label>
     <div style="display:flex;gap:8px">
       <input id="wallet-result-addr" readonly style="flex:1;font-family:Consolas,monospace;background:#050608;color:#26e07f;font-weight:bold;font-size:12px">
       <button id="wallet-copy-addr" class="primary" style="height:28px;padding:0 12px;font-size:11px">Copy Address</button>
@@ -123,18 +123,29 @@ The miner will run on your remote server in the background and stream results he
     </div>
   </div>
 
-  <div style="margin-top:12px">
-    <label style="color:#ffb86c;font-size:11px;display:block;margin-bottom:4px">⚠️ Private Key / Secret (Keep this 100% Secret!)</label>
+  <div id="wallet-seed-container" style="margin-top:14px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+      <label style="color:#f1fa8c;font-size:11px;font-weight:600">🔑 12-Word Recovery Seed Phrase (Secret Backup)</label>
+      <button id="wallet-copy-seed" style="height:24px;padding:0 10px;font-size:10px">Copy Seed</button>
+    </div>
+    <div id="wallet-result-seed" style="background:#050608;border:1px solid #232a36;border-radius:4px;padding:10px;font-family:Consolas,monospace;color:#f1fa8c;font-size:12px;line-height:1.6;letter-spacing:0.4px"></div>
+  </div>
+
+  <div style="margin-top:14px">
+    <label style="color:#ff79c6;font-size:11px;display:block;margin-bottom:4px">⚠️ Raw Private Key / Secret (Never Share!)</label>
     <div style="display:flex;gap:8px">
-      <input id="wallet-result-priv" type="password" readonly style="flex:1;font-family:Consolas,monospace;background:#050608;color:#ff5555;font-size:12px">
-      <button id="wallet-toggle-priv" style="height:28px;padding:0 12px;font-size:11px">Show Key</button>
-      <button id="wallet-copy-priv" style="height:28px;padding:0 12px;font-size:11px">Copy Key</button>
+      <textarea id="wallet-result-priv" readonly rows="2" style="flex:1;font-family:Consolas,monospace;background:#050608;color:#ff5555;font-size:11px;resize:none;padding:6px;border:1px solid #1a231f"></textarea>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <button id="wallet-copy-priv" style="height:28px;padding:0 12px;font-size:11px">Copy Key</button>
+      </div>
     </div>
   </div>
 
-  <div style="margin-top:12px;padding:10px;background:rgba(255,255,255,0.02);border:1px solid var(--line);border-radius:4px">
-    <div style="display:grid;grid-template-columns:120px 1fr;gap:6px;font-size:11px">
-      <span style="color:var(--muted)">Format / Notes:</span>
+  <div style="margin-top:14px;padding:10px;background:rgba(255,255,255,0.02);border:1px solid var(--line);border-radius:4px">
+    <div style="display:grid;grid-template-columns:130px 1fr;gap:6px;font-size:11px">
+      <span style="color:var(--muted)">Recovery Scheme:</span>
+      <span id="wallet-result-recovery" style="color:#f1fa8c;font-weight:600"></span>
+      <span style="color:var(--muted)">Network Format:</span>
       <span id="wallet-result-notes" style="color:var(--text)"></span>
       <span style="color:var(--muted)">Official Project:</span>
       <span id="wallet-result-links"></span>
@@ -142,38 +153,43 @@ The miner will run on your remote server in the background and stream results he
   </div>
 </article>
 
-<article class="panel" style="margin-top:10px;padding:12px">
-  <div class="panel-head"><b>Supported Token Official Sites & Explorers</b></div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:8px;margin-top:8px">
-    <div style="padding:8px;border:1px solid var(--line)">
+<article class="panel" style="margin-top:12px;padding:12px">
+  <div class="panel-head"><b>Verified Official Project Sites & Explorers</b></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));gap:8px;margin-top:8px">
+    <div style="padding:10px;border:1px solid var(--line);background:rgba(0,0,0,0.2)">
       <b style="color:var(--green)">Zycord (ZCD)</b>
-      <div style="font-size:11px;color:var(--muted);margin:4px 0">RandomX v2 CPU Mining</div>
-      <button class="link" onclick="window.gozer.open('ZCD')">Official Site ↗</button>
+      <div style="font-size:11px;color:var(--muted);margin:4px 0">RandomX v2 CPU · Persistent 0x02</div>
+      <button class="link" onclick="window.gozer.open('ZCD')">zycord.com ↗</button>
     </div>
-    <div style="padding:8px;border:1px solid var(--line)">
+    <div style="padding:10px;border:1px solid var(--line);background:rgba(0,0,0,0.2)">
       <b style="color:var(--green)">Blocknet (BNT)</b>
-      <div style="font-size:11px;color:var(--muted);margin:4px 0">Argon2id CPU Mining</div>
-      <button class="link" onclick="window.gozer.open('BNT')">Pool & Info ↗</button>
+      <div style="font-size:11px;color:var(--muted);margin:4px 0">Argon2id CPU · Stealth Address</div>
+      <button class="link" onclick="window.gozer.open('BNT')">bntpool.com ↗</button>
     </div>
-    <div style="padding:8px;border:1px solid var(--line)">
+    <div style="padding:10px;border:1px solid var(--line);background:rgba(0,0,0,0.2)">
       <b style="color:var(--green)">YSKAR (YSR)</b>
-      <div style="font-size:11px;color:var(--muted);margin:4px 0">SHA-256d GPU Mining</div>
-      <button class="link" onclick="window.gozer.open('YSR')">Official App ↗</button>
+      <div style="font-size:11px;color:var(--muted);margin:4px 0">SHA-256d GPU · Bech32m ysr1</div>
+      <button class="link" onclick="window.gozer.open('YSR')">yskar.app ↗</button>
     </div>
-    <div style="padding:8px;border:1px solid var(--line)">
+    <div style="padding:10px;border:1px solid var(--line);background:rgba(0,0,0,0.2)">
       <b style="color:var(--green)">Pearl (PRL)</b>
-      <div style="font-size:11px;color:var(--muted);margin:4px 0">PearlHash GPU Mining</div>
-      <button class="link" onclick="window.gozer.open('PRL')">Kryptex Pool ↗</button>
+      <div style="font-size:11px;color:var(--muted);margin:4px 0">PearlHash GPU · prl1 Address</div>
+      <button class="link" onclick="window.gozer.open('PRL')">pearlresearch.ai ↗</button>
     </div>
-    <div style="padding:8px;border:1px solid var(--line)">
+    <div style="padding:10px;border:1px solid var(--line);background:rgba(0,0,0,0.2)">
       <b style="color:var(--green)">Quantus (QTC)</b>
-      <div style="font-size:11px;color:var(--muted);margin:4px 0">Poseidon2 GPU Mining</div>
-      <button class="link" onclick="window.gozer.open('QTC')">Kryptex Pool ↗</button>
+      <div style="font-size:11px;color:var(--muted);margin:4px 0">Poseidon2 GPU · qzo Address</div>
+      <button class="link" onclick="window.gozer.open('QTC')">quantus.com ↗</button>
     </div>
-    <div style="padding:8px;border:1px solid var(--line)">
+    <div style="padding:10px;border:1px solid var(--line);background:rgba(0,0,0,0.2)">
       <b style="color:var(--green)">Parano1d (NOID)</b>
-      <div style="font-size:11px;color:var(--muted);margin:4px 0">Poseidon2b GPU Mining</div>
-      <button class="link" onclick="window.gozer.open('NOID')">Suprnova Pool ↗</button>
+      <div style="font-size:11px;color:var(--muted);margin:4px 0">Poseidon2b GPU · o1 Address</div>
+      <button class="link" onclick="window.gozer.open('NOID')">parano1d.org ↗</button>
+    </div>
+    <div style="padding:10px;border:1px solid var(--line);background:rgba(0,0,0,0.2)">
+      <b style="color:var(--green)">TensorCash (TSC)</b>
+      <div style="font-size:11px;color:var(--muted);margin:4px 0">Proof of Inference · SegWit tc1q</div>
+      <button class="link" onclick="window.gozer.open('TSC')">tensorcash.org ↗</button>
     </div>
   </div>
 </article>
