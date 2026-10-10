@@ -1,0 +1,8 @@
+{"round":0,"vector":0,"hash":"7ede501774bc34ee386dd7e1460e41d6a5b3d3add5eced6459dde4cb85224971","seconds":0.6918502,"passed":true}
+{"round":0,"vector":1,"hash":"b6477c7c168c333a96af6694a7d8dda33b0c2b6407a9f869bb7fc66983653ebd","seconds":0.476406,"passed":true}
+{"round":0,"vector":2,"hash":"023f39baffb8343d3aad858073ba492cd3c0fe25eac2dd7be3d35efcb118b7f7","seconds":0.4842336,"passed":true}
+{"round":0,"vector":3,"hash":"537723df71f52ddb052331a6534cc9e984f5048bc70405acfe5c800da82e231b","seconds":0.4784476,"passed":true}
+{"round":1,"vector":0,"hash":"7ede501774bc34ee386dd7e1460e41d6a5b3d3add5eced6459dde4cb85224971","seconds":0.4809351,"passed":true}
+{"round":1,"vector":1,"hash":"b6477c7c168c333a96af6694a7d8dda33b0c2b6407a9f869bb7fc66983653ebd","seconds":0.5016087,"passed":true}
+{"round":1,"vector":2,"hash":"023f39baffb8343d3aad858073ba492cd3c0fe25eac2dd7be3d35efcb118b7f7","seconds":0.5185476,"passed":true}
+{"round":1,"vector":3,"hash":"537723df71f52ddb052331a6534cc9e984f5048bc70405acfe5c800da82e231b","seconds":0.5205429,"passed":true}

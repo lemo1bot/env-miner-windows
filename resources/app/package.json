@@ -1,0 +1,27 @@
+{
+  "name": "dot-env-miner",
+  "productName": ".env",
+  "version": "1.0.40",
+  "private": true,
+  "description": ".env Mining Workstation",
+  "main": "src/main.cjs",
+  "scripts": {
+    "test": "node --test tests/*.test.cjs",
+    "build": "python scripts/package.py"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "displayVersion": "Beta 1.02",
+  "releaseChannel": "beta",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AlexZeroZero/GozeroAssistant.git",
+    "directory": "desktop"
+  },
+  "homepage": "https://gozero.trade/",
+  "bugs": {
+    "url": "https://github.com/AlexZeroZero/GozeroAssistant/issues"
+  }
+}
