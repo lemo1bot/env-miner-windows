@@ -141,6 +141,9 @@ vpsRunner.on('log', msg => {
 });
 handle('vpsStart', data => vpsRunner.start(data));
 handle('vpsStop', () => vpsRunner.stop());
+const { generateWallet, WALLET_INFO } = require('./wallet-generator.cjs');
+handle('walletGenerate', coin => generateWallet(coin));
+handle('walletInfo', () => WALLET_INFO);
 handle('exportLogs',async()=>{const choice=await dialog.showSaveDialog(win,{defaultPath:'Gozer-log.txt',filters:[{name:'Text',extensions:['txt']}]});if(choice.canceled)return false;await fs.writeFile(choice.filePath,logs.map(x=>new Date(x.at).toISOString()+' ['+(x.task?x.task.toUpperCase()+'·'+x.coin+' / ':'')+x.type+'] '+x.text).join('\r\n'),'utf8');return true});
  win.on('minimize',()=>{if(!quitting){win.hide();floating.show().catch(e=>log('窗口',e.message))}});win.on('restore',()=>floating.hide());
  win.on('close',e=>{if(!quitting){e.preventDefault();win.hide();floating.show().catch(e=>{restoreMain();log('窗口',e.message)})}});

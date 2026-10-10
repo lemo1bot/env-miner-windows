@@ -1,7 +1,7 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"><title>.env Miner</title><link rel="stylesheet" href="app.css"><link rel="stylesheet" href="upgrade.css"><link rel="stylesheet" href="rentals.css"><link rel="stylesheet" href="dual.css"><link rel="stylesheet" href="light-theme.css"><link rel="stylesheet" href="workbench128.css"><link rel="stylesheet" href="dotenv-style.css"></head><body>
 <div class="app">
 <header><img src="logo.png" alt=".env" style="border-radius:50%"><b>.env</b><span class="edition">CPU + GPU + VPS</span><span class="badge" id="app-version">v1.0.40</span><select id="language-top" class="language-picker" data-language data-i18n-skip aria-label="Language / 语言"><option value="en">English</option><option value="zh-CN">中文</option><option value="ja">日本語</option><option value="ru">Русский</option></select><div class="window-buttons"><button id="theme" title="Theme">☼</button><button data-window="minimize" title="Minimize">−</button><button data-window="maximize" title="Maximize">□</button><button data-window="close" title="Close">×</button></div></header>
-<nav><button data-view="overview" class="active">▦ Overview</button><button data-view="mining">ϟ Miner</button><button data-view="vps">☁ Remote VPS</button><button data-view="community">★ Community</button><button data-view="logs">▣ Logs</button><button data-view="settings">⚙ Settings</button><button data-view="information" class="nav-end">◈ News</button></nav>
+<nav><button data-view="overview" class="active">▦ Overview</button><button data-view="mining">ϟ Miner</button><button data-view="wallets">⚿ Wallets</button><button data-view="vps">☁ Remote VPS</button><button data-view="community">★ Community</button><button data-view="logs">▣ Logs</button><button data-view="settings">⚙ Settings</button><button data-view="information" class="nav-end">◈ News</button></nav>
 <main>
 <section class="view active" id="overview"><div class="section-bar"><b>设备总览 <span class="badge">实时</span></b><span id="scan-time" class="muted"></span><button id="scan">⌗ 重新扫描</button></div>
 <article class="panel"><div class="panel-head"><b>▧ GPU 设备</b><span id="selected-count">读取中</span><button id="clear-missing" class="link" hidden>清理失效选择</button><span class="right" id="os-name">Windows / 本机</span></div><div class="gpu-columns"><span>参与 / 设备 / PCIe</span><span>显存</span><span>负载</span><span>温度</span><span>功耗</span><span></span></div><div id="gpu-list"><div class="empty">正在读取本机设备，请稍候…</div></div><div class="panel-foot"><span id="gpu-power">功耗待读取</span><span>点击型号查看参数 · 列表内滚动</span></div></article>
@@ -72,6 +72,109 @@
 <div class="panel-head"><b>Remote VPS Terminal Output</b><button id="vps-clear-log" class="link right">Clear Output</button></div>
 <div id="vps-console" style="height:220px;overflow:auto;background:#050608;color:#26e07f;font-family:Consolas,monospace;padding:8px;font-size:11px;line-height:1.5;white-space:pre-wrap;border:1px solid var(--line)">[Ready] Fill in your VPS IP and password above, then click 'Start Remote Mining'.
 The miner will run on your remote server in the background and stream results here.</div>
+</article>
+<section class="view" id="wallets">
+<div class="section-bar"><b>⚿ Instant Wallet Generator <span class="badge" style="color:var(--green)">CLIENT-SIDE REALTIME</span></b><span class="muted">Generate & inspect mainnet addresses for all minable tokens</span></div>
+
+<article class="panel" style="padding:14px;border-left:3px solid var(--green)">
+  <div style="display:flex;align-items:flex-start;gap:12px">
+    <div style="font-size:20px;color:var(--green)">🔒</div>
+    <div>
+      <b style="color:var(--green);font-size:12px;display:block;margin-bottom:2px">Zero-Knowledge & Client-Side Security</b>
+      <p style="color:var(--muted);font-size:11px;line-height:1.6;margin:0">
+        All keys and addresses are cryptographically computed in local memory using native cryptography. 
+        <b>We do NOT store, log, or transmit your private keys, seed phrases, or wallet data to any server.</b> 
+        Be sure to securely back up your private keys before closing this screen.
+      </p>
+    </div>
+  </div>
+</article>
+
+<article class="panel" style="margin-top:10px;padding:12px">
+  <div class="panel-head"><b>Select Token to Generate Wallet</b><span>Realtime Cryptographic Keypair</span></div>
+  <div style="display:grid;grid-template-columns:180px 1fr auto;gap:10px;margin-top:10px;align-items:center">
+    <select id="wallet-gen-coin" style="height:32px;font-weight:bold;font-size:12px">
+      <option value="ZCD">Zycord (ZCD) · CPU</option>
+      <option value="BNT">Blocknet (BNT) · CPU</option>
+      <option value="YSR">YSKAR (YSR) · NVIDIA</option>
+      <option value="PRL">Pearl (PRL) · GPU</option>
+      <option value="QTC">Quantus (QTC) · GPU</option>
+      <option value="NOID">Parano1d (NOID) · GPU</option>
+      <option value="TSC">TigerSmartChain (TSC)</option>
+    </select>
+    <div id="wallet-coin-meta" style="font-size:11px;color:var(--muted)">Select a token and click 'Generate New Wallet'</div>
+    <button id="wallet-gen-btn" class="primary" style="height:32px;padding:0 18px;font-size:12px">⚡ Generate New Wallet</button>
+  </div>
+</article>
+
+<article id="wallet-result-card" class="panel" style="margin-top:10px;padding:14px" hidden>
+  <div class="panel-head">
+    <b style="color:var(--green);font-size:13px" id="wallet-result-title">Generated Keypair</b>
+    <span class="badge" style="background:rgba(38,224,127,0.1);color:var(--green);border-color:var(--green)">LIVE IN MEMORY</span>
+  </div>
+
+  <div style="margin-top:10px">
+    <label style="color:var(--muted);font-size:11px;display:block;margin-bottom:4px">Public Receive Address (Use this in Miner)</label>
+    <div style="display:flex;gap:8px">
+      <input id="wallet-result-addr" readonly style="flex:1;font-family:Consolas,monospace;background:#050608;color:#26e07f;font-weight:bold;font-size:12px">
+      <button id="wallet-copy-addr" class="primary" style="height:28px;padding:0 12px;font-size:11px">Copy Address</button>
+      <button id="wallet-apply-btn" style="height:28px;padding:0 12px;font-size:11px" title="Set as payout address in Miner tab">Use in Miner ↗</button>
+    </div>
+  </div>
+
+  <div style="margin-top:12px">
+    <label style="color:#ffb86c;font-size:11px;display:block;margin-bottom:4px">⚠️ Private Key / Secret (Keep this 100% Secret!)</label>
+    <div style="display:flex;gap:8px">
+      <input id="wallet-result-priv" type="password" readonly style="flex:1;font-family:Consolas,monospace;background:#050608;color:#ff5555;font-size:12px">
+      <button id="wallet-toggle-priv" style="height:28px;padding:0 12px;font-size:11px">Show Key</button>
+      <button id="wallet-copy-priv" style="height:28px;padding:0 12px;font-size:11px">Copy Key</button>
+    </div>
+  </div>
+
+  <div style="margin-top:12px;padding:10px;background:rgba(255,255,255,0.02);border:1px solid var(--line);border-radius:4px">
+    <div style="display:grid;grid-template-columns:120px 1fr;gap:6px;font-size:11px">
+      <span style="color:var(--muted)">Format / Notes:</span>
+      <span id="wallet-result-notes" style="color:var(--text)"></span>
+      <span style="color:var(--muted)">Official Project:</span>
+      <span id="wallet-result-links"></span>
+    </div>
+  </div>
+</article>
+
+<article class="panel" style="margin-top:10px;padding:12px">
+  <div class="panel-head"><b>Supported Token Official Sites & Explorers</b></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:8px;margin-top:8px">
+    <div style="padding:8px;border:1px solid var(--line)">
+      <b style="color:var(--green)">Zycord (ZCD)</b>
+      <div style="font-size:11px;color:var(--muted);margin:4px 0">RandomX v2 CPU Mining</div>
+      <button class="link" onclick="window.gozer.open('ZCD')">Official Site ↗</button>
+    </div>
+    <div style="padding:8px;border:1px solid var(--line)">
+      <b style="color:var(--green)">Blocknet (BNT)</b>
+      <div style="font-size:11px;color:var(--muted);margin:4px 0">Argon2id CPU Mining</div>
+      <button class="link" onclick="window.gozer.open('BNT')">Pool & Info ↗</button>
+    </div>
+    <div style="padding:8px;border:1px solid var(--line)">
+      <b style="color:var(--green)">YSKAR (YSR)</b>
+      <div style="font-size:11px;color:var(--muted);margin:4px 0">SHA-256d GPU Mining</div>
+      <button class="link" onclick="window.gozer.open('YSR')">Official App ↗</button>
+    </div>
+    <div style="padding:8px;border:1px solid var(--line)">
+      <b style="color:var(--green)">Pearl (PRL)</b>
+      <div style="font-size:11px;color:var(--muted);margin:4px 0">PearlHash GPU Mining</div>
+      <button class="link" onclick="window.gozer.open('PRL')">Kryptex Pool ↗</button>
+    </div>
+    <div style="padding:8px;border:1px solid var(--line)">
+      <b style="color:var(--green)">Quantus (QTC)</b>
+      <div style="font-size:11px;color:var(--muted);margin:4px 0">Poseidon2 GPU Mining</div>
+      <button class="link" onclick="window.gozer.open('QTC')">Kryptex Pool ↗</button>
+    </div>
+    <div style="padding:8px;border:1px solid var(--line)">
+      <b style="color:var(--green)">Parano1d (NOID)</b>
+      <div style="font-size:11px;color:var(--muted);margin:4px 0">Poseidon2b GPU Mining</div>
+      <button class="link" onclick="window.gozer.open('NOID')">Suprnova Pool ↗</button>
+    </div>
+  </div>
 </article>
 </section>
 </main><footer><span><i></i><span id="footer-state">System Online</span></span><span id="footer-detail">.env Workstation / Realtime</span><button id="fee-details" class="footer-fee" title="Dev fee 1.0%">Dev Fee 1.0%</button><button class="link">.env Engine ↗</button></footer>

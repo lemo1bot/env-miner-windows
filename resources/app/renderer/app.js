@@ -211,4 +211,115 @@ $('#bnt-connection-check').onclick=()=>action(async()=>{await saveMining();const
       vpsText.textContent = 'Remote mining stopped';
     };
   }
+
+  // --- Wallet Generator Logic ---
+  const genCoinSelect = document.getElementById('wallet-gen-coin');
+  const genCoinMeta = document.getElementById('wallet-coin-meta');
+  const genBtn = document.getElementById('wallet-gen-btn');
+  const resultCard = document.getElementById('wallet-result-card');
+  const resultTitle = document.getElementById('wallet-result-title');
+  const resultAddr = document.getElementById('wallet-result-addr');
+  const resultPriv = document.getElementById('wallet-result-priv');
+  const resultNotes = document.getElementById('wallet-result-notes');
+  const resultLinks = document.getElementById('wallet-result-links');
+  const copyAddrBtn = document.getElementById('wallet-copy-addr');
+  const copyPrivBtn = document.getElementById('wallet-copy-priv');
+  const togglePrivBtn = document.getElementById('wallet-toggle-priv');
+  const applyBtn = document.getElementById('wallet-apply-btn');
+
+  let currentGenerated = null;
+
+  const updateMeta = () => {
+    if (!genCoinSelect || !genCoinMeta) return;
+    const c = genCoinSelect.value;
+    const desc = {
+      ZCD: 'RandomX v2 CPU · Permanent 0x02 keypair for Zycord network',
+      BNT: 'Argon2id CPU · Stealth dual-key address for Blocknet network',
+      YSR: 'SHA-256d GPU · Bech32m ysr1 address for YSKAR network',
+      PRL: 'PearlHash GPU · Kryptex-compatible Pearl mainnet address',
+      QTC: 'Poseidon2 GPU · Kryptex-compatible Quantus address',
+      NOID: 'Poseidon2b GPU · Bech32m o1 address for Parano1d / Suprnova',
+      TSC: 'Racer GPU · Tiger Smart Chain tc1q address'
+    };
+    genCoinMeta.textContent = desc[c] || 'Cryptographic mainnet keypair';
+  };
+
+  if (genCoinSelect) {
+    genCoinSelect.onchange = updateMeta;
+    updateMeta();
+  }
+
+  if (genBtn) {
+    genBtn.onclick = async () => {
+      try {
+        const coin = genCoinSelect.value;
+        genBtn.disabled = true;
+        genBtn.textContent = 'Computing Keypair...';
+        const wallet = await window.gozer.walletGenerate(coin);
+        currentGenerated = wallet;
+
+        resultCard.hidden = false;
+        resultTitle.textContent = `${wallet.name} (${wallet.coin}) · Generated Keypair`;
+        resultAddr.value = wallet.address;
+        resultPriv.value = wallet.privateKey;
+        resultPriv.type = 'password';
+        togglePrivBtn.textContent = 'Show Key';
+        resultNotes.textContent = wallet.notes || 'Native cryptographic address';
+        resultLinks.innerHTML = `<button class="link" onclick="window.gozer.open('${wallet.coin}')">View ${wallet.name} Network ↗</button>`;
+
+        toast(`${wallet.coin} wallet generated successfully!`);
+      } catch (err) {
+        toast(`Error generating wallet: ${err.message}`);
+      } finally {
+        genBtn.disabled = false;
+        genBtn.textContent = '⚡ Generate New Wallet';
+      }
+    };
+  }
+
+  if (copyAddrBtn) {
+    copyAddrBtn.onclick = () => {
+      if (!resultAddr.value) return;
+      navigator.clipboard.writeText(resultAddr.value);
+      toast('Public address copied to clipboard!');
+    };
+  }
+
+  if (copyPrivBtn) {
+    copyPrivBtn.onclick = () => {
+      if (!resultPriv.value) return;
+      navigator.clipboard.writeText(resultPriv.value);
+      toast('Private key copied! Store it securely.');
+    };
+  }
+
+  if (togglePrivBtn) {
+    togglePrivBtn.onclick = () => {
+      if (resultPriv.type === 'password') {
+        resultPriv.type = 'text';
+        togglePrivBtn.textContent = 'Hide Key';
+      } else {
+        resultPriv.type = 'password';
+        togglePrivBtn.textContent = 'Show Key';
+      }
+    };
+  }
+
+  if (applyBtn) {
+    applyBtn.onclick = async () => {
+      if (!currentGenerated) return;
+      try {
+        const coin = currentGenerated.coin;
+        const addr = currentGenerated.address;
+        await save({
+          coin,
+          wallets: { ...state.config.wallets, [coin]: addr }
+        });
+        showView('mining');
+        toast(`Set ${coin} payout address in Miner tab!`);
+      } catch (e) {
+        toast(e.message);
+      }
+    };
+  }
 })();
