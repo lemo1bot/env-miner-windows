@@ -6,8 +6,8 @@ function hideNetworkAddresses(value){
  return String(value)
   .replace(/\[?[\da-f:.%]*:[\da-f:.%]+\]?/gi,token=>{
    const address=token.replace(/^\[|\]$/g,'');
-   return isIP(address)===6?'[IP已隐藏]':token;
+   return isIP(address)===6?'[IP hidden]':token;
   })
-  .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g,token=>isIP(token)===4?'[IP已隐藏]':token);
+  .replace(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g,token=>isIP(token)===4?'[IP hidden]':token);
 }
 module.exports={hideNetworkAddresses};

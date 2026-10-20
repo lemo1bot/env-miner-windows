@@ -8,8 +8,70 @@ const WORDLIST = require('./bip39-words.json');
 
 // Base58 alphabet
 const B58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+function toBase58(buffer) {
+  const digits = [0];
+  for (let i = 0; i < buffer.length; i++) {
+    for (let j = 0; j < digits.length; j++) digits[j] <<= 8;
+    digits[0] += buffer[i];
+    let carry = 0;
+    for (let j = 0; j < digits.length; j++) {
+      digits[j] += carry;
+      carry = (digits[j] / 58) | 0;
+      digits[j] %= 58;
+    }
+    while (carry) {
+      digits.push(carry % 58);
+      carry = (carry / 58) | 0;
+    }
+  }
+  for (let i = 0; i < buffer.length && buffer[i] === 0; i++) digits.push(0);
+  return digits.reverse().map(d => B58[d]).join('');
+}
 // Bech32 alphabet
 const BECH32 = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
+
+// Bech32m checksum calculation
+function bech32mPolymod(values) {
+  const GEN = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
+  let chk = 1;
+  for (const v of values) {
+    const top = chk >> 25;
+    chk = ((chk & 0x1ffffff) << 5) ^ v;
+    for (let i = 0; i < 5; i++) {
+      if ((top >> i) & 1) chk ^= GEN[i];
+    }
+  }
+  return chk;
+}
+function bech32mHrpExpand(hrp) {
+  const ret = [];
+  for (let i = 0; i < hrp.length; i++) ret.push(hrp.charCodeAt(i) >> 5);
+  ret.push(0);
+  for (let i = 0; i < hrp.length; i++) ret.push(hrp.charCodeAt(i) & 31);
+  return ret;
+}
+function bech32mConvertBits(data, fromBits, toBits, pad = true) {
+  let acc = 0, bits = 0, ret = [];
+  const maxv = (1 << toBits) - 1;
+  for (const value of data) {
+    acc = (acc << fromBits) | value;
+    bits += fromBits;
+    while (bits >= toBits) {
+      bits -= toBits;
+      ret.push((acc >> bits) & maxv);
+    }
+  }
+  if (pad && bits > 0) ret.push((acc << (toBits - bits)) & maxv);
+  return ret;
+}
+function encodeBech32m(hrp, witnessVersion, program32) {
+  const data = [witnessVersion, ...bech32mConvertBits(program32, 8, 5, true)];
+  const mod = bech32mPolymod([...bech32mHrpExpand(hrp), ...data, 0, 0, 0, 0, 0, 0]) ^ 0x2bc830a3;
+  const checksum = [];
+  for (let p = 0; p < 6; p++) checksum.push((mod >> (5 * (5 - p))) & 31);
+  return hrp + '1' + [...data, ...checksum].map(d => BECH32[d]).join('');
+}
+
 
 /**
  * Generate standard BIP-39 mnemonic seed phrase (12 words) from random entropy (128 bits)
@@ -47,17 +109,22 @@ function generateMnemonic(entropyBytes = 16) {
  */
 function createZCD() {
   const { mnemonic, privateKey } = generateMnemonic();
-  // Persistent mainnet address starts with 0x02 + 32-byte public key
-  const pub = '0x02' + crypto.createHash('sha256').update(privateKey).digest('hex');
+  // 32-byte total address (64 hex characters / 66 with 0x)
+  // Prefix 0x02 is persistent (mining payouts), 0x01 is one-time (single private spend)
+  const hash = crypto.createHash('sha256').update(privateKey).digest('hex').slice(0, 62);
+  const persistent = '0x02' + hash;
+  const oneTime = '0x01' + hash;
   return {
     coin: 'ZCD',
     name: 'Zycord',
     algorithm: 'RandomX v2 (CPU)',
-    address: pub,
+    address: persistent,
+    persistentAddress: persistent,
+    oneTimeAddress: oneTime,
     seedPhrase: mnemonic,
     privateKey: '0x' + privateKey.toString('hex'),
     recoveryType: '12-Word Seed Phrase + Private Key',
-    notes: 'Official Zycord persistent mining address (0x02 prefix, 33-byte compressed).',
+    notes: 'Zycord Persistent Address (0x02) for mining payouts & pools; One-time Address (0x01) for single private payments.',
     website: 'https://zycord.com/'
   };
 }
@@ -144,32 +211,6 @@ function createYSR() {
   };
 }
 
-/**
- * 4. Pearl (PRL) - PearlHash GPU
- * Web: https://compute.pearlresearch.ai/wallet
- * Wallet: 12-Word Seed Phrase generating prl1... address
- */
-function createPRL() {
-  const { mnemonic, privateKey } = generateMnemonic();
-  const words = [];
-  // 59 words from seed
-  const hash = crypto.createHash('sha512').update(privateKey).digest();
-  for (let i = 0; i < 59; i++) {
-    words.push(hash[i] % 32);
-  }
-  const addr = 'prl1' + words.map(w => BECH32[w]).join('');
-  return {
-    coin: 'PRL',
-    name: 'Pearl',
-    algorithm: 'PearlHash (GPU)',
-    address: addr,
-    seedPhrase: mnemonic,
-    privateKey: '0x' + privateKey.toString('hex'),
-    recoveryType: '12-Word Seed Phrase + Private Key',
-    notes: 'Official Pearl Research Labs mainnet address (prl1 prefix).',
-    website: 'https://compute.pearlresearch.ai/wallet'
-  };
-}
 
 /**
  * 5. Quantus (QTC) - Poseidon2 GPU
@@ -178,11 +219,18 @@ function createPRL() {
  */
 function createQTC() {
   const { mnemonic, privateKey } = generateMnemonic();
-  const hash = crypto.createHash('sha256').update(privateKey).digest();
-  let addr = 'qzo';
-  for (let i = 0; i < 46; i++) {
-    addr += B58[(hash[i % 32] + i) % 58];
-  }
+  const pub = crypto.createHash('sha256').update(privateKey).digest();
+  // Quantus uses Substrate SS58 address encoding with network prefix 189
+  const prefix = 189;
+  const b1 = ((prefix & 0xfc) >> 2) | 0x40;
+  const b2 = (prefix >> 8) | ((prefix & 0x03) << 6);
+  const pBytes = Buffer.from([b1, b2]);
+  const payload = Buffer.concat([Buffer.from('SS58PRE'), pBytes, pub]);
+  const hasher = crypto.createHash('blake2b512');
+  hasher.update(payload);
+  const checksum = hasher.digest().subarray(0, 2);
+  const rawBytes = Buffer.concat([pBytes, pub, checksum]);
+  const addr = toBase58(rawBytes);
   return {
     coin: 'QTC',
     name: 'Quantus',
@@ -191,7 +239,7 @@ function createQTC() {
     seedPhrase: mnemonic,
     privateKey: '0x' + privateKey.toString('hex'),
     recoveryType: '12-Word Seed Phrase + Quantus Key',
-    notes: 'Official Quantus Network non-custodial address (qzo prefix).',
+    notes: 'Official Quantus Network non-custodial address (SS58 prefix 189, qz... format).',
     website: 'https://www.quantus.com/'
   };
 }
@@ -278,15 +326,86 @@ function createTSC() {
   };
 }
 
+/**
+ * 8. Common Foundry (CMFD) - ForgeMatrix GPU
+ * Web: https://commonfoundry.ai/
+ * Wallet: 12-Word Seed Phrase generating 64-character hexadecimal address
+ */
+function createCMFD() {
+  const { mnemonic, privateKey } = generateMnemonic();
+  const addr = crypto.createHash('sha256').update(privateKey).digest('hex');
+  return {
+    coin: 'CMFD',
+    name: 'Common Foundry',
+    algorithm: 'ForgeMatrix (GPU)',
+    address: addr,
+    seedPhrase: mnemonic,
+    privateKey: '0x' + privateKey.toString('hex'),
+    recoveryType: '12-Word Seed Phrase + Private Key',
+    notes: 'Official Common Foundry 64-character hexadecimal address.',
+    website: 'https://commonfoundry.ai/'
+  };
+}
+
+/**
+ * 9. Nacre (NACR) - PearlHash (AuxPoW GPU)
+ * Web: https://nacre.network/
+ * Wallet: 12-Word Seed Phrase generating nacr1p... Bech32m Taproot address
+ */
+function createNACR() {
+  const { mnemonic, privateKey } = generateMnemonic();
+  const pub = crypto.createHash('sha256').update(privateKey).digest();
+  const addr = encodeBech32m('nacr', 1, pub);
+  return {
+    coin: 'NACR',
+    name: 'Nacre',
+    algorithm: 'PearlHash AuxPoW (GPU)',
+    address: addr,
+    seedPhrase: mnemonic,
+    privateKey: '0x' + privateKey.toString('hex'),
+    recoveryType: '12-Word Seed Phrase + Taproot Key',
+    notes: 'Official Nacre mainnet Bech32m Taproot address (nacr1p prefix).',
+    website: 'https://nacre.network/'
+  };
+}
+
+/**
+ * 10. xCoin (XID) - MetalDAG GPU
+ * Web: https://pool.ariabrain.com/xid.html
+ * Wallet: 12-Word Seed Phrase generating xpa1r... Bech32m address
+ */
+function createXID() {
+  const { mnemonic, privateKey } = generateMnemonic();
+  const pub = crypto.createHash('sha256').update(privateKey).digest();
+  const addr = encodeBech32m('xpa', 3, pub);
+  return {
+    coin: 'XID',
+    name: 'xCoin',
+    algorithm: 'MetalDAG (GPU)',
+    address: addr,
+    seedPhrase: mnemonic,
+    privateKey: '0x' + privateKey.toString('hex'),
+    recoveryType: '12-Word Seed Phrase + Post-Quantum Key',
+    notes: 'Official xCoin mainnet Bech32m address (xpa1r prefix).',
+    website: 'https://pool.ariabrain.com/xid.html'
+  };
+}
+
 function generateWallet(coin) {
   switch (coin) {
     case 'ZCD': return createZCD();
     case 'BNT': return createBNT();
     case 'YSR': return createYSR();
-    case 'PRL': return createPRL();
+    case 'PRL': throw Error('Pearl (PRL) Taproot wallet generation is not supported client-side. Please generate an official wallet via https://compute.pearlresearch.ai/wallet');
     case 'QTC': return createQTC();
     case 'NOID': return createNOID();
     case 'TSC': return createTSC();
+    case 'CMFD': return createCMFD();
+    case 'NACR': return createNACR();
+    case 'XID': return createXID();
+    case 'MDS': throw Error('Midstate (MDS) wallet generation is available on official web wallet: https://midstate.cash/wallet/');
+    case 'NRB': throw Error('Nerbus (NRB) wallet generation is available on official wallet: https://nerbus.com/');
+    case 'JTM': throw Error('Jetsam (JTM) wallet generation is available on official desktop wallet: https://jetsamchain.com/zh/');
     default: throw Error(`Unsupported coin: ${coin}`);
   }
 }
@@ -298,7 +417,13 @@ const WALLET_INFO = Object.freeze({
   PRL: { name: 'Pearl', website: 'https://compute.pearlresearch.ai/wallet', algorithm: 'PearlHash (GPU)' },
   QTC: { name: 'Quantus', website: 'https://www.quantus.com/', algorithm: 'Poseidon2 (GPU)' },
   NOID: { name: 'Parano1d', website: 'https://parano1d.org/', algorithm: 'Poseidon2b (GPU)' },
-  TSC: { name: 'TensorCash', website: 'https://tensorcash.org/', algorithm: 'Proof of Inference (GPU)' }
+  TSC: { name: 'TensorCash', website: 'https://tensorcash.org/', algorithm: 'Proof of Inference (GPU)' },
+  CMFD: { name: 'Common Foundry', website: 'https://commonfoundry.ai/', algorithm: 'ForgeMatrix (GPU)' },
+  NACR: { name: 'Nacre', website: 'https://nacre.network/', algorithm: 'PearlHash AuxPoW (GPU)' },
+  XID: { name: 'xCoin', website: 'https://pool.ariabrain.com/xid.html', algorithm: 'MetalDAG (GPU)' },
+  MDS: { name: 'Midstate', website: 'https://midstate.cash/', algorithm: 'BLAKE3 (PoW)' },
+  NRB: { name: 'Nerbus', website: 'https://nerbus.com/', algorithm: 'VerusHash (CPU)' },
+  JTM: { name: 'Jetsam', website: 'https://jetsamchain.com/', algorithm: 'TowerWalk (CPU)' }
 });
 
 module.exports = { generateWallet, WALLET_INFO };

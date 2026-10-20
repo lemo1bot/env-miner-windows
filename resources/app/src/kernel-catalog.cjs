@@ -4,25 +4,34 @@ const ID='krig-1.5.4';
 const NOID_KERNELS=require('./noid-kernels.json');
 const YSR_KERNEL=require('./ysr-kernel.json');
 function choices(coin){
- if(coin==='BNT'){const k=require('./bnt-kernel.json');return[{id:'auto',label:'默认推荐 · .env Blocknet CPU '+k.version,disabled:false},{id:k.id,label:'.env Blocknet CPU · AVX2 / AVX-512 / SSE2 · 内核费 0%',disabled:false},{id:require('./bnt-seine-kernel.json').id,label:'Seine 0.2.15 · CPU · 内核费 2.5%（bntpool 1%）',disabled:false}]}
- if(coin==='ZCD')return[{id:'auto',label:'默认推荐 · .env XMRig CPU · 内核费 0%',disabled:false},{id:require('./zcd-local-kernel.json').id,label:'.env XMRig CPU 6.26.0-cpu.2 · 内核费 0%',disabled:false},{id:'xmrig-zcd-6.26.0',label:'官方 XMRig 6.26.0 · 内核费 1%',disabled:false}];
- if(coin==='YSR')return[{id:'auto',label:'默认推荐 · .env YSR CUDA '+YSR_KERNEL.version,disabled:false},{id:YSR_KERNEL.id,label:'.env YSR CUDA '+YSR_KERNEL.version+' · 内置',disabled:false}];
- if(coin==='NOID')return[{id:'auto',label:'默认推荐 · Suprminer 1.9.27',disabled:false},...Object.values(NOID_KERNELS).map(k=>({id:k.id,label:k.name+' '+k.version+' · 官方下载',disabled:false}))];
- const supported=['PRL','QTC','TSC'].includes(coin);
- const rows=[{id:'auto',label:supported?'默认推荐 · KRig 1.5.4':'默认推荐 · 暂无可用内核',disabled:false}];
- if(supported)rows.push({id:ID,label:'KRig 1.5.4 · 手动指定',disabled:false});
- if(coin==='QTC')rows.push({id:'gozer-qtc-experimental',label:'.env QTC Engine · 实验 / 未接矿池',disabled:true});
- if(coin==='TSC')rows.push({id:'racer-pending',label:'.env TSC GPU Engine · 实验',disabled:false});
- return rows;
+ if(coin==='BNT'){const k=require('./bnt-kernel.json');return[{id:'auto',label:'Recommended · .env Blocknet CPU '+k.version,disabled:false},{id:k.id,label:'.env Blocknet CPU · AVX2 / AVX-512 / SSE2 · Kernel fee 0%',disabled:false},{id:require('./bnt-seine-kernel.json').id,label:'Seine 0.2.15 · CPU · Kernel fee 2.5% (bntpool 1%)',disabled:false}]}
+ if(coin==='ZCD')return[{id:'auto',label:'Recommended · Official XMRig 6.26.0',disabled:false},{id:'xmrig-zcd-6.26.0',label:'Official XMRig 6.26.0 · Ready',disabled:false},{id:require('./zcd-local-kernel.json').id,label:'.env XMRig CPU 6.26.0-cpu.2 · Kernel fee 0%',disabled:false}];
+ if(coin==='YSR')return[{id:'auto',label:'Recommended · .env YSR CUDA '+YSR_KERNEL.version,disabled:false},{id:YSR_KERNEL.id,label:'.env YSR CUDA '+YSR_KERNEL.version+' · Built-in',disabled:false}];
+ if(coin==='NOID')return[{id:'auto',label:'Recommended · Suprminer 1.9.27',disabled:false},...Object.values(NOID_KERNELS).map(k=>({id:k.id,label:k.name+' '+k.version+' · Official Download',disabled:false}))];
+ if(coin==='NACR'||coin==='PRL'||coin==='QTC')return[{id:'auto',label:'Recommended · KRig 1.5.4',disabled:false},{id:ID,label:'KRig 1.5.4 · GPU Miner',disabled:false}];
+ if(coin==='CMFD')return[{id:'auto',label:'Recommended · Common Foundry GPU 1.0.0 (CUDA)',disabled:false},{id:'cmfd-gpu-1.0.0',label:'Common Foundry GPU 1.0.0 · ForgeMatrix',disabled:false}];
+ if(coin==='XID')return[{id:'auto',label:'Recommended · xCoin MetalDAG GPU 1.0.0 (CUDA)',disabled:false},{id:'xid-gpu-1.0.0',label:'xCoin MetalDAG GPU 1.0.0 · MetalDAG',disabled:false}];
+ if(coin==='TSC')return[{id:'auto',label:'Recommended · TensorCash GPU 1.0.0 (CUDA)',disabled:false},{id:'tsc-gpu-1.0.0',label:'TensorCash GPU 1.0.0 · Proof of Inference',disabled:false}];
+ if(coin==='MDS')return[{id:'auto',label:'Recommended · Midstate BLAKE3 Miner 1.0.0',disabled:false},{id:'mds-miner-1.0.0',label:'Midstate BLAKE3 Miner 1.0.0 · Sequential BLAKE3',disabled:false}];
+ if(coin==='NRB')return[{id:'auto',label:'Recommended · Nerbus VerusHash CPU Miner 1.0.0',disabled:false},{id:'nrb-cpu-1.0.0',label:'Nerbus CPU Miner 1.0.0 · VerusHash 2.2',disabled:false}];
+ if(coin==='JTM')return[{id:'auto',label:'Recommended · Jetsam TowerMiner CPU 1.5.1',disabled:false},{id:'towerminer-1.5.1',label:'towerminer 1.5.1 · TowerWalk PoW',disabled:false}];
+ return [{id:'auto',label:'Recommended · Engine Ready',disabled:false}];
 }
 function validChoice(coin,id){return choices(coin).some(c=>!c.disabled&&c.id===id)}
 function resolve(config){
  const selection=config.kernels?.[config.coin]??'auto';
- if(!validChoice(config.coin,selection))throw Error('该币种不支持所选内核');
+ if(!validChoice(config.coin,selection))throw Error('Selected engine not supported for this coin');
  if(config.coin==='BNT')return{...(selection===require('./bnt-seine-kernel.json').id?require('./bnt-seine-kernel.json'):require('./bnt-kernel.json')),selection};
- if(config.coin==='ZCD')return{...(selection==='xmrig-zcd-6.26.0'?require('./zcd-kernel.json'):require('./zcd-local-kernel.json')),selection};
+ if(config.coin==='ZCD')return{...(selection==='gozero-xmrig-cpu-6.26.0-2'?require('./zcd-local-kernel.json'):require('./zcd-kernel.json')),selection,installed:true};
  if(config.coin==='YSR')return{...require('./ysr-kernel.json'),selection};
  if(config.coin==='NOID')return{...(NOID_KERNELS[selection]||NOID_KERNELS['suprminer-noid-1.9.27']),selection};
+ if(config.coin==='NACR')return{id:ID,selection,...KRIG,name:'KRig',version:'1.5.4',algorithm:'PearlHash AuxPoW',installed:true};
+ if(config.coin==='CMFD')return{id:'cmfd-gpu-1.0.0',name:'Common Foundry GPU',version:'1.0.0',exe:'cmfd-miner.exe',selection,installed:true};
+ if(config.coin==='XID')return{id:'xid-gpu-1.0.0',name:'xCoin MetalDAG GPU',version:'1.0.0',exe:'xid-miner.exe',selection,installed:true};
+ if(config.coin==='TSC')return{id:'tsc-gpu-1.0.0',name:'TensorCash GPU',version:'1.0.0',exe:'tsc-miner.exe',selection,installed:true};
+ if(config.coin==='MDS')return{id:'mds-miner-1.0.0',name:'Midstate BLAKE3 Miner',version:'1.0.0',exe:'mds-miner.exe',selection,installed:true};
+ if(config.coin==='NRB')return{id:'nrb-cpu-1.0.0',name:'Nerbus VerusHash CPU Miner',version:'1.0.0',exe:'nrb-miner.exe',selection,installed:true};
+ if(config.coin==='JTM')return{id:'towerminer-1.5.1',name:'towerminer',version:'1.5.1',exe:'towerminer.exe',selection,installed:true};
  return{id:ID,selection,...KRIG};
 }
 module.exports={KRIG,choices,validChoice,resolve};

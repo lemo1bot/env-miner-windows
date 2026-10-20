@@ -1,8 +1,8 @@
 'use strict';
 // Gozero YSKAR integration prototype. Header rules: pinned upstream in provenance.json.
 const {createHash}=require('node:crypto');
-const PUBLIC_API='https://ysr.pool.gozero.trade:8443';
-const LEGACY_API='https://yskar-main.dynv6.net';
+const PUBLIC_API='https://yskar-main.dynv6.net';
+const LEGACY_API='https://pool.yskar.app';
 const LIMIT64=(1n<<64n)-1n;
 function integer(value,max,label){
   if(typeof value==='number'&&(!Number.isSafeInteger(value)||value<0))throw Error(label+' must be an exact unsigned integer');

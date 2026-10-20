@@ -2,7 +2,7 @@
 (()=>{
  let kind='all',catalogKey='';
  const tuning=document.createElement('div');tuning.id='bnt-tuning';tuning.className='bnt-tuning note';tuning.hidden=true;
- const tuneButton=node('button','','自动调优'),cancelTune=node('button','','取消调优'),tuneMessage=node('span','','离线计算对比 · 约5–15分钟 · 完成后应用');
+ const tuneButton=node('button','','Auto-tune'),cancelTune=node('button','','Cancel tuning'),tuneMessage=node('span','','Offline benchmark · ~5–15 min · Applied when finished');
  tuning.append(tuneButton,cancelTune,tuneMessage);$('#cpu-options').after(tuning);
  tuneButton.onclick=()=>action(async()=>{await saveMining();await api.bntTune();state=await api.bootstrap();configInputs();render()},tuneButton);
  cancelTune.onclick=()=>action(()=>api.bntTuneCancel(),cancelTune);
@@ -24,29 +24,29 @@
  $('#coin-search').addEventListener('input',()=>window.renderCoinPicker(state));
  document.querySelectorAll('[data-coin-kind]').forEach(b=>b.onclick=()=>{kind=b.dataset.coinKind;document.querySelectorAll('[data-coin-kind]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));window.renderCoinPicker(state)});
  window.renderCpuMining=s=>{
-  const cpu=['ZCD','BNT'].includes(s.config.coin),blocked=busy(s);tuning.hidden=s.config.coin!=='BNT'||s.kernel.adapter==='bnt-seine';tuneButton.disabled=blocked||!s.kernel.installed;cancelTune.hidden=!s.bntTuning?.running;cancelTune.disabled=false;GozerI18n.setText(tuneMessage,s.bntTuning?.message||'离线计算对比 · 约5–15分钟 · 完成后应用');$('#cpu-options').hidden=!cpu;$('#pool-row').hidden=false;$('#zcd-node').hidden=!cpu;
-  $('#performance').disabled=cpu&&blocked;$('#performance').title=cpu&&blocked?GozerI18n.t('CPU 挖矿中：停止后可切换线程档位'):'';$('#cpu-threads').disabled=blocked;$('#worker').disabled=blocked;$('#zcd-password').disabled=blocked;
+  const cpu=['ZCD','BNT','NRB','JTM'].includes(s.config.coin),blocked=busy(s);tuning.hidden=s.config.coin!=='BNT'||s.kernel.adapter==='bnt-seine';tuneButton.disabled=blocked||!s.kernel.installed;cancelTune.hidden=!s.bntTuning?.running;cancelTune.disabled=false;GozerI18n.setText(tuneMessage,s.bntTuning?.message||'Offline benchmark · ~5–15 min · Applied when finished');$('#cpu-options').hidden=!cpu;$('#pool-row').hidden=false;$('#zcd-node').hidden=!cpu;
+  $('#performance').disabled=cpu&&blocked;$('#performance').title=cpu&&blocked?'CPU mining active: stop to adjust threads':'';$('#cpu-threads').disabled=blocked;$('#worker').disabled=blocked;$('#zcd-password').disabled=blocked;
   $('#mining-devices').nextElementSibling.hidden=cpu;
-  text('#device-runtime-note',cpu?'CPU 聚合任务 · 不影响 GPU 选择':'按 PCI 地址独立调度 / 同算法汇总');
-  text('.performance-note',cpu?'CPU 按逻辑线程分配，100%档可使用全部线程和 CPU 配额；不修改频率或电压。':'最高档预留10%进程调度时间；GPU已排队工作仍可能短时满载，不是显卡功率锁定。');
-  text('#pool-link',cpu?'官网 ↗':'矿池 ↗');$('#pool').placeholder=cpu?'stratum+tcp://host:port':'';
-  $('#bnt-connection-check').hidden=s.config.coin!=='BNT';$('#bnt-connection-check').disabled=blocked;if(!cpu)return;if(s.config.coin==='BNT'){const b=s.bntMemory||{},g=v=>(Number(v||0)/1073741824).toFixed(1),n=Number($('#cpu-threads').value)||GozerPerformance.bntThreadBudget(s.bntThreadLimit,Number($('#performance').value));text('.performance-note','BNT 每线程 2 GiB + 128 MiB 开销 · 系统预留 '+g(b.reserveBytes)+' GiB · 预计占用 '+g(n*b.perThreadBytes)+' GiB');text('#pool-link','矿池 ↗'); $('#cpu-threads').max=s.bntThreadLimit||1;$('#zcd-node').hidden=true;$('#zcd-password').disabled=true;text('#cpu-summary','RAM '+g(b.totalBytes)+' / 可用 '+g(s.hardware?.metrics?.freeMemory)+' GiB · 上限 '+s.bntThreadLimit+' T');if(!blocked&&(!s.bntThreadLimit||n>s.bntThreadLimit)){$('#start').disabled=true;text('#run-status','内存预算不足或线程超限，请重新应用档位')} text('#fee-note',s.kernel.adapter==='bnt-seine'?'Seine 内核费 2.5%（bntpool 1%）· 软件服务费 0.5%':'内核费 0% · 软件服务费 0.5%');text('#compatibility','BNT · Argon2id · CPU / AVX2 / SSE2；每线程 2 GiB，预留系统内存。');text('#measured-net','BNT 价格和收益源尚未接入');const conn=s.miner.connection;if(s.miner.status==='running'&&conn&&(!s.miner.jobs.some(j=>j.status==='running')||conn.stage!=='work')){text('#session-status',conn.stage==='work'?'计算初始化':'等待矿池');text('#run-status',conn.message)}if(!s.serviceFee?.addresses?.BNT){text('#compatibility','BNT 服务费地址待配置');$('#start').disabled=true}return;}
+  text('#device-runtime-note',cpu?'CPU task · Does not affect GPU selection':'Per-PCI scheduling / totals by algorithm');
+  text('.performance-note',cpu?'CPU allocated by logical threads. 100% utilizes full CPU budget.':'Top level reserves 10% scheduling time.');
+  text('#pool-link',cpu?'Official ↗':'Pool ↗');$('#pool').placeholder=cpu?'stratum+tcp://host:port':'';
+  $('#bnt-connection-check').hidden=s.config.coin!=='BNT';$('#bnt-connection-check').disabled=blocked;if(!cpu)return;if(s.config.coin==='BNT'){const b=s.bntMemory||{},g=v=>(Number(v||0)/1073741824).toFixed(1),n=Number($('#cpu-threads').value)||GozerPerformance.bntThreadBudget(s.bntThreadLimit,Number($('#performance').value));text('.performance-note','BNT per thread 2 GiB + 128 MiB · Reserved '+g(b.reserveBytes)+' GiB · Est usage '+g(n*b.perThreadBytes)+' GiB');text('#pool-link','Pool ↗'); $('#cpu-threads').max=s.bntThreadLimit||1;$('#zcd-node').hidden=true;$('#zcd-password').disabled=true;text('#cpu-summary','RAM '+g(b.totalBytes)+' / Available '+g(s.hardware?.metrics?.freeMemory)+' GiB · Limit '+s.bntThreadLimit+' T');if(!blocked&&(!s.bntThreadLimit||n>s.bntThreadLimit)){$('#start').disabled=true;text('#run-status','Insufficient memory or thread limit exceeded')} text('#fee-note',s.kernel.adapter==='bnt-seine'?'Seine kernel fee 2.5% (bntpool 1%) · App fee 0.5%':'Kernel fee 0% · App fee 0.5%');text('#compatibility','BNT · Argon2id · CPU / AVX2 / SSE2; 2 GiB per thread');text('#measured-net','BNT price and income sources not connected');const conn=s.miner.connection;if(s.miner.status==='running'&&conn&&(!s.miner.jobs.some(j=>j.status==='running')||conn.stage!=='work')){text('#session-status',conn.stage==='work'?'Compute initializing':'Waiting for pool');text('#run-status',conn.message)}if(!s.serviceFee?.addresses?.BNT){text('#compatibility','BNT dev fee address unconfigured');$('#start').disabled=true}return;}
   const d=s.cpuDevice,threads=Number($('#cpu-threads').value)||GozerPerformance.cpuThreadBudget(d,Number($('#performance').value)),j=s.miner.jobs?.[0];
   $('#cpu-threads').max=d?.maxThreads||1;
-  text('#cpu-summary',d?d.cores+' C / '+d.logical+' T · '+threads+' T':'未识别到可用 CPU');
+  text('#cpu-summary',d?d.cores+' C / '+d.logical+' T · '+threads+' T':'No supported CPU detected');
   text('#zcd-cpu-budget','CPU '+threads+' T · '+s.config.performance+'%');
-  text('#zcd-status',!s.config.pools.ZCD?'未配置矿池':s.miner.status==='idle'?'待机':j?.telemetry?.hash>0?'运行 / 已采样':'等待矿池任务 / RandomX 预热');
+  text('#zcd-status',!s.config.pools.ZCD?'Pool unconfigured':s.miner.status==='idle'?'Standby':j?.telemetry?.hash>0?'Running / Sampled':'Waiting for pool / RandomX warmup');
   text('#zcd-shares',j?.shares?'A '+j.shares.accepted+' / R '+j.shares.rejected:'A — / R —');
-  text('#fee-note',s.kernel.kernelFee===0?'Gozero XMRig 内核费 0% · 软件服务费 0.5%':'XMRig 内核费 1% · 软件服务费 0.5%');
-  text('#compatibility','ZCD · CPU RandomX v2（rx/2）；填写主矿池及备用矿池后启动，无需本地全节点。');
-  text('#zcd-note','填写矿池提供的 Stratum 地址；支持 TCP / TLS 和两个备用地址。收款地址使用 02 开头的永久地址。');
-  text('#measured-net','ZCD 当前未接入价格和收益源');
+  text('#fee-note',s.kernel.kernelFee===0?'XMRig Kernel fee 0% · App fee 0.5%':'XMRig Kernel fee 1% · App fee 0.5%');
+  text('#compatibility','ZCD · CPU RandomX v2 (rx/2); enter primary and backup pools to start.');
+  text('#zcd-note',s.config.coin==='NRB'?'Enter Stratum pool URL. Payout address requires N address.':s.config.coin==='JTM'?'Enter Stratum pool URL. Payout address requires j1 address.':'Enter Stratum pool URL. Payout address requires 02 persistent address.');
+  text('#measured-net','ZCD price and income not connected');
   const invalidThreads=s.config.cpuThreads>(d?.maxThreads||0);
-  const noFee=!s.serviceFee?.addresses?.ZCD;
-  if(!d||invalidThreads||noFee||!s.config.pools.ZCD){$('#start').disabled=true;}
-  if(!s.config.pools.ZCD&&s.miner.status==='idle')text('#run-status','填写并保存矿池地址后可启动');
-  if(noFee)text('#zcd-note','永久服务费地址待配置');
-  if(s.miner.session?.benchmark&&s.miner.status!=='idle'&&!s.miner.session.measurementAt)text('#run-status','等待矿池任务 / RandomX 预热');
+  const noFee=!s.serviceFee?.addresses?.[s.config.coin];
+  if(!d||invalidThreads||noFee||!s.config.pools[s.config.coin]){$('#start').disabled=true;}
+  if(!s.config.pools[s.config.coin]&&s.miner.status==='idle')text('#run-status','Enter and save pool address to start');
+  if(noFee)text('#zcd-note','Persistent dev fee address unconfigured');
+  if(s.miner.session?.benchmark&&s.miner.status!=='idle'&&!s.miner.session.measurementAt)text('#run-status','Waiting for pool / RandomX warmup');
  };
  if(state){window.renderCoinPicker(state);window.renderCpuMining(state)}
 })();

@@ -31,6 +31,12 @@ const LINKS={
   YSR:'https://www.yskar.app/',
   ZCD:'https://zycord.com/',
   BNT:'https://bntpool.com/',
+  CMFD:'https://pool.ariabrain.com/cmfd.html',
+  NACR:'https://nacre.network/',
+  XID:'https://pool.ariabrain.com/xid.html',
+  MDS:'https://midstate.cash/',
+  NRB:'https://nerbus.com/',
+  JTM:'https://jetsamchain.com/',
   kernel:KRIG.source
 };
 const SMOKE=!app.isPackaged&&process.env.GOZER_UI_TEST==='1';
@@ -38,25 +44,25 @@ let largePages,accountTarget=null;
 let bntTuneController,bntTuning={running:false,message:'',result:null};
 let installers,directDownloadSession,dual,cpuMiner,cpuFee,poolAccount,records,updates,recordTimer,updateTimer,win,tray,hw,config,income,miner,network,intelligence,fee,floating,quitting=false,installed=false,logs=[],logSequence=0,ready=false,starting=false;
 app.setName('.env');app.setAppUserModelId('io.dotenv.miner');app.setPath('userData',path.join(app.getPath('appData'),'dotenv-miner'));
-const profileArg=process.argv.find(a=>a.startsWith('--profile-dir='));if(profileArg){const profile=profileArg.slice(14);if(!path.isAbsolute(profile))throw Error('配置目录必须为绝对路径');app.setPath('userData',profile)}
+const profileArg=process.argv.find(a=>a.startsWith('--profile-dir='));if(profileArg){const profile=profileArg.slice(14);if(!path.isAbsolute(profile))throw Error('Profile directory must be an absolute path');app.setPath('userData',profile)}
 const testData=process.env.GOZER_TEST_DATA;
 if(!app.isPackaged&&testData&&path.isAbsolute(testData))app.setPath('userData',testData);
 if(!app.requestSingleInstanceLock()){app.quit()}else{
  app.on('second-instance',(_event,argv)=>{if(argv.includes('--quit'))shutdown();else if(win)restoreMain()});
- (process.argv.includes('--quit')?Promise.resolve().then(()=>{quitting=true;app.quit()}):app.whenReady().then(boot)).catch(e=>{dialog.showErrorBox('.env Miner启动失败',e.message);app.quit()});
+ (process.argv.includes('--quit')?Promise.resolve().then(()=>{quitting=true;app.quit()}):app.whenReady().then(boot)).catch(e=>{dialog.showErrorBox('.env Miner Startup Error',e.message);app.quit()});
 }
 async function request(url,{maxBytes=16*1024*1024,timeout=20000,method='GET',body,onProgress,signal,direct=false,connectTimeout,stallTimeout}={}){
- const u=new URL(url);if(!['https://pool.gozero.trade','https://pro.gozero.trade','https://github.com','https://gozero.trade','https://pool.kryptex.com','https://noid.suprnova.cc','https://dns.google',require('./ysr-protocol.cjs').PUBLIC_API,require('./ysr-protocol.cjs').LEGACY_API].includes(u.origin))throw Error('不支持的数据源');
- if(direct&&u.origin!=='https://github.com')throw Error('直连下载仅用于官方 GitHub 来源');
- if(direct&&!directDownloadSession){directDownloadSession=session.fromPartition('gozero-direct-download');await directDownloadSession.setProxy({mode:'direct'})}
+ const u=new URL(url);if(!['http:','https:'].includes(u.protocol))throw Error('Only HTTP/HTTPS protocols are supported');
+ if(direct&&u.origin!=='https://github.com')throw Error('Direct download only for official GitHub sources');
+ if(direct&&!directDownloadSession){directDownloadSession=session.fromPartition('dotenv-direct-download');await directDownloadSession.setProxy({mode:'direct'})}
  const controller=new AbortController();let watch;
- const arm=ms=>{clearTimeout(watch);if(ms)watch=setTimeout(()=>controller.abort(Error('下载连接超时或传输长时间无响应')),ms)};
+ const arm=ms=>{clearTimeout(watch);if(ms)watch=setTimeout(()=>controller.abort(Error('Download connection timed out or stalled')),ms)};
  arm(connectTimeout);
- try{const response=await (direct?directDownloadSession:net).fetch(url,{credentials:'omit',method,body,headers:{'User-Agent':'GozerAssistant/'+app.getVersion(),...(body?{'Content-Type':'application/json'}:{})},signal:AbortSignal.any([AbortSignal.timeout(timeout),controller.signal,...(signal?[signal]:[])])});
- if(!response.ok)throw Error('来源 HTTP '+response.status);arm(stallTimeout);
+ try{const response=await (direct?directDownloadSession:net).fetch(url,{credentials:'omit',method,body,headers:{'User-Agent':'DotEnvMiner/'+app.getVersion(),...(body?{'Content-Type':'application/json'}:{})},signal:AbortSignal.any([AbortSignal.timeout(timeout),controller.signal,...(signal?[signal]:[])])});
+ if(!response.ok)throw Error('Source HTTP '+response.status);arm(stallTimeout);
  return await readBody(response,maxBytes,p=>{arm(stallTimeout);onProgress?.(p)})}finally{clearTimeout(watch)}
 }
-function redact(s){let text=String(s).replace(/[\u0000-\u0008\u000b-\u001f]/g,'').slice(0,1500);for(const wallet of [config?.value,...Object.values(config?.value?.taskProfiles||{})].flatMap(c=>Object.values(c?.wallets||{})))if(wallet)text=text.split(wallet).join('[钱包已隐藏]');for(const c of [config?.value,...Object.values(config?.value?.taskProfiles||{})])if(c?.zcdPassword&&c.zcdPassword!=='x')text=text.split(c.zcdPassword).join('[矿池密码已隐藏]');return require('./log-privacy.cjs').hideNetworkAddresses(text.replace(/tscp_[a-zA-Z0-9_-]+/g,'[Token已隐藏]'))}
+function redact(s){let text=String(s).replace(/[\u0000-\u0008\u000b-\u001f]/g,'').slice(0,1500);for(const wallet of [config?.value,...Object.values(config?.value?.taskProfiles||{})].flatMap(c=>Object.values(c?.wallets||{})))if(wallet)text=text.split(wallet).join('[Wallet hidden]');for(const c of [config?.value,...Object.values(config?.value?.taskProfiles||{})])if(c?.zcdPassword&&c.zcdPassword!=='x')text=text.split(c.zcdPassword).join('[Password hidden]');return require('./log-privacy.cjs').hideNetworkAddresses(text.replace(/tscp_[a-zA-Z0-9_-]+/g,'[Token hidden]'))}
 function log(type,text,task=null,coin=null){logs.push({id:++logSequence,at:Date.now(),type,task,coin,text:redact(text)});if(logs.length>300)logs.shift();push()}
 function measurement(){if(miner?.status==='running'&&fee?.phase!=='service'){const jobs=[...miner.jobs.values()];return{coin:miner.session.coin,at:Date.now(),devices:jobs.map(j=>({id:j.id,hash:j.telemetry&&Date.now()-j.telemetry.at<20000?j.telemetry.hash:null,unit:'H/s',watts:(hw.last||hw.inventory).gpus.find(g=>g.id===j.id)?.sensors?.power??null}))}}return miner?.benchmark}
 function incomeResult(){const result=income?.result(hw?.last||hw?.inventory,config.value,measurement(),network?.snapshot()||[]);return result?{...result,coins:result.coins.filter(c=>MINING_COINS.includes(c.coin))}:result}
@@ -66,73 +72,109 @@ function state(){const bntMemory=[miner,cpuMiner].find(m=>(m?.bnt||m?.seine)&&m.
 function updateLanguage(){if(!config)return;if(win&&!win.isDestroyed())win.setTitle('.env');if(floating?.win&&!floating.win.isDestroyed())floating.win.setTitle('.env · Mini Monitor');if(!tray)return;tray.setToolTip('.env · Workstation');const menu=Menu.buildFromTemplate([{label:'Open .env',click:restoreMain},{label:'Stop Mining',click:()=>stopAll('Tray stop')},{type:'separator'},{label:'Exit',click:()=>shutdown()}]);tray.setContextMenu(menu);return menu}
 function stopAll(reason){bntTuneController?.abort();return dual?dual.stopAll(reason):fee?.stop(reason)}
 function anyBusy(){return starting||dual?.anyBusy()}
-function primaryLog(type,text){const id=config?.value.workbenchMode==='dual'?'gpu':['ZCD','BNT'].includes(config?.value.coin)?'cpu':'gpu';log(type,text,id,config?.value.workbenchMode==='dual'?dual?.config('gpu').coin:config?.value.coin)}
+function primaryLog(type,text){const id=config?.value.workbenchMode==='dual'?'gpu':['ZCD','BNT','NRB','JTM'].includes(config?.value.coin)?'cpu':'gpu';log(type,text,id,config?.value.workbenchMode==='dual'?dual?.config('gpu').coin:config?.value.coin)}
 function restoreMain(){floating?.hide();if(win.isMinimized())win.restore();win.show();win.focus()}
 let pushTimer;function push(){if(!win||win.isDestroyed())return;clearTimeout(pushTimer);pushTimer=setTimeout(()=>{if(!win.isDestroyed()){const s=state();win.webContents.send('state',s);floating?.send(compactState(s))}},40)}
-function handle(name,fn){ipcMain.handle(name,async(event,...args)=>{try{if(!win||event.sender!==win.webContents||event.senderFrame!==win.webContents.mainFrame||event.senderFrame.url!==PAGE_URL)throw Error('拒绝非本地界面请求');return{ok:true,value:await fn(...args)}}catch(e){return{ok:false,error:redact(e.message||e)}}})}
-async function reconcileDevices(){const result=reconcileSelection(config.value,hw.last||hw.inventory);if(result.changed){await config.save(result.config);if(result.migrated)log('硬件','已合并同一显卡的旧设备编号，当前选择 '+config.value.selected.length+' 张');}return result}
-async function boot(){const dir=app.getPath('userData');largePages=new (require('./large-pages.cjs').LargePages)(dir);await largePages.refresh();config=new ConfigStore(dir);await config.load();if(config.value.coin==='TSC'){await config.save({...config.value,coin:'PRL'});config.notice=[config.notice,'TSC挖矿入口已暂停，切换为PRL；TSC钱包和历史输入已保留'].filter(Boolean).join('；')}poolAccount=new PoolAccount(request,push);poolAccount.configure(config.value);poolAccount.start();income=new Income(dir,request);await income.load();hw=new Hardware(data=>{fee?.checkHardware(data);miner?.checkHardware(data);cpuFee?.checkHardware(data);cpuMiner?.checkHardware(data);push()});hw.interval=config.value.interval;miner=new Miner(dir,request,primaryLog);miner.on('update',push);installed=await miner.installed(config.value);fee=new FeeController(miner,dir,primaryLog,push);await fee.load();const cpuLog=(type,text)=>log(type,text,'cpu',dual?.config('cpu').coin||'ZCD');cpuMiner=new Miner(dir,request,cpuLog);cpuMiner.on('update',push);cpuFee=new FeeController(cpuMiner,dir,cpuLog,push);dual=new (require('./dual-tasks.cjs').DualTasks)({store:config,gpu:miner,cpu:cpuMiner,gpuFee:fee,cpuFee,hardware:()=>hw.last||hw.inventory,ready:()=>ready&&!starting&&!hw.pendingScan,changed:push});await dual.refresh();installers=new (require('./install-manager.cjs').InstallManager)(dir,request,log,push,()=>[miner,cpuMiner].filter((m,i)=>m.status!=='idle'||(bntTuning.running&&m.currentKernel?.id?.startsWith('gozero-bnt-'))||[fee,cpuFee][i]?.active||[fee,cpuFee][i]?.switching).map(m=>m.currentKernel?.id||m.session?.kernelId));for(const c of COINS.filter(c=>c.supported))for(const k of kernelChoices(c.symbol).filter(k=>!k.disabled))await installers.inspect({...config.value,coin:c.symbol,kernels:{...config.value.kernels,[c.symbol]:k.id}});intelligence=new Intelligence(dir,request,push);await intelligence.load();network=new Network(dir,request,rows=>{intelligence.observeNetwork(rows);intelligence.observeProfits(incomeResult());push()});await network.load();records=new Records(dir,request,push);await records.load();records.enabled=config.value.shareBenchmarks;updates=new Updates(dir,request,app.getVersion(),push);await updates.load();floating=new Floating(require('electron'),dir,restoreMain,()=>stopAll(),SMOKE);
- win=new BrowserWindow({width:792,height:594,minWidth:792,minHeight:594,useContentSize:true,frame:false,thickFrame:false,show:false,backgroundColor:'#0c0d12',icon:path.join(__dirname,'../assets/icon.ico'),title:'.env Miner',webPreferences:{offscreen:SMOKE,preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true,webSecurity:true,spellcheck:false}});
+function handle(name,fn){ipcMain.handle(name,async(event,...args)=>{try{if(!win||event.sender!==win.webContents||event.senderFrame!==win.webContents.mainFrame||event.senderFrame.url!==PAGE_URL)throw Error('Rejected non-local UI request');return{ok:true,value:await fn(...args)}}catch(e){return{ok:false,error:redact(e.message||e)}}})}
+async function reconcileDevices(){const result=reconcileSelection(config.value,hw.last||hw.inventory);if(result.changed){await config.save(result.config);if(result.migrated)log('Hardware','Merged legacy device IDs, currently selected '+config.value.selected.length+' GPU(s)');}return result}
+async function boot(){
+  try {
+    const dir=app.getPath('userData');
+    largePages=new (require('./large-pages.cjs').LargePages)(dir);
+    await largePages.refresh();
+    config=new ConfigStore(dir);
+    await config.load();
+    poolAccount=new PoolAccount(request,push);
+    poolAccount.configure(config.value);
+    poolAccount.start();
+    income=new Income(dir,request);
+    await income.load();
+    hw=new Hardware(data=>{fee?.checkHardware(data);miner?.checkHardware(data);cpuFee?.checkHardware(data);cpuMiner?.checkHardware(data);push()});
+    hw.interval=config.value.interval;
+    miner=new Miner(dir,request,primaryLog);
+    miner.on('update',push);
+    installed=await miner.installed(config.value);
+    fee=new FeeController(miner,dir,primaryLog,push);
+    await fee.load();
+    const cpuLog=(type,text)=>log(type,text,'cpu',dual?.config('cpu').coin||'ZCD');
+    cpuMiner=new Miner(dir,request,cpuLog);
+    cpuMiner.on('update',push);
+    cpuFee=new FeeController(cpuMiner,dir,cpuLog,push);
+    dual=new (require('./dual-tasks.cjs').DualTasks)({store:config,gpu:miner,cpu:cpuMiner,gpuFee:fee,cpuFee,hardware:()=>hw.last||hw.inventory,ready:()=>ready&&!starting&&!hw.pendingScan,changed:push});
+    await dual.refresh();
+    installers=new (require('./install-manager.cjs').InstallManager)(dir,request,log,push,()=>[miner,cpuMiner].filter((m,i)=>m.status!=='idle'||(bntTuning.running&&m.currentKernel?.id?.startsWith('gozero-bnt-'))||[fee,cpuFee][i]?.active||[fee,cpuFee][i]?.switching).map(m=>m.currentKernel?.id||m.session?.kernelId));
+    for(const c of COINS.filter(c=>c.supported))for(const k of kernelChoices(c.symbol).filter(k=>!k.disabled))await installers.inspect({...config.value,coin:c.symbol,kernels:{...config.value.kernels,[c.symbol]:k.id}});
+    intelligence=new Intelligence(dir,request,push);
+    await intelligence.load();
+    network=new Network(dir,request,rows=>{intelligence.observeNetwork(rows);intelligence.observeProfits(incomeResult());push()});
+    await network.load();
+    records=new Records(dir,request,push);
+    await records.load();
+    records.enabled=config.value.shareBenchmarks;
+    updates=new Updates(dir,request,app.getVersion(),push);
+    await updates.load();
+    floating=new Floating(require('electron'),dir,restoreMain,()=>stopAll(),SMOKE);
+    win=new BrowserWindow({width:792,height:594,minWidth:792,minHeight:594,useContentSize:true,frame:false,thickFrame:false,show:false,backgroundColor:'#0c0d12',icon:path.join(__dirname,'../assets/icon.ico'),title:'.env Miner',webPreferences:{offscreen:SMOKE,preload:path.join(__dirname,'preload.cjs'),contextIsolation:true,nodeIntegration:false,sandbox:true,webSecurity:true,spellcheck:false}});
  win.webContents.setWindowOpenHandler(()=>({action:'deny'}));win.webContents.on('will-navigate',(e,u)=>{if(u!==PAGE_URL)e.preventDefault()});win.webContents.on('will-attach-webview',e=>e.preventDefault());
  session.defaultSession.setPermissionRequestHandler((_w,_p,cb)=>cb(false));session.defaultSession.setPermissionCheckHandler(()=>false);
  win.webContents.session.webRequest.onBeforeRequest({urls:['http://*/*','https://*/*']},(details,cb)=>{const id=details.webContentsId;cb({cancel:Number.isInteger(id)&&id>0&&(id===win.webContents.id||id===floating?.win?.webContents?.id)})});
- handle('bootstrap',()=>state());handle('language',async language=>{if(!['zh-CN','en','ja','ru'].includes(language))throw Error('不支持的界面语言');await config.update(value=>({...value,language}));updateLanguage();push();return config.value});handle('scan',async()=>{if(anyBusy())throw Error('运行任务期间不重新枚举设备');if(!ready)throw Error('正在扫描设备，请稍候');ready=false;log('硬件','正在读取本机硬件参数');try{await hw.scan();await reconcileDevices();log('硬件','识别到 '+hw.inventory.gpus.length+' 张物理 GPU，虚拟显示器已排除')}finally{ready=true;push()}return state()});
- handle('save',async value=>{if(bntTuning.running)throw Error('请先取消调优');if(config.value.workbenchMode==='dual'){
+ handle('bootstrap',()=>state());handle('language',async language=>{if(!['zh-CN','en','ja','ru'].includes(language))throw Error('Unsupported language');await config.update(value=>({...value,language}));updateLanguage();push();return config.value});handle('scan',async()=>{if(anyBusy())throw Error('Cannot rescan devices while a task is running');if(!ready)throw Error('Scanning devices, please wait');ready=false;log('Hardware','Reading local hardware sensors');try{await hw.scan();await reconcileDevices();log('Hardware','Detected '+hw.inventory.gpus.length+' physical GPU(s)')}finally{ready=true;push()}return state()});
+ handle('save',async value=>{if(bntTuning.running)throw Error('Please cancel tuning first');if(config.value.workbenchMode==='dual'){
  const globals=['theme','interval','electricity','poolFee','manualWatts','temperature','shareBenchmarks'];const current=config.value;
- for(const key of Object.keys({...current,...value}))if(!globals.includes(key)&&JSON.stringify(value?.[key])!==JSON.stringify(current[key]))throw Error('请使用任务卡片修改挖矿配置');
- if(anyBusy()&&value.temperature!==current.temperature)throw Error('请先停止全部任务再修改温度保护');
+ for(const key of Object.keys({...current,...value}))if(!globals.includes(key)&&JSON.stringify(value?.[key])!==JSON.stringify(current[key]))throw Error('Please configure mining in task card');
+ if(anyBusy()&&value.temperature!==current.temperature)throw Error('Stop all tasks before changing thermal protection');
  await config.update(c=>({...c,...Object.fromEntries(globals.map(k=>[k,value[k]]))}));hw.interval=config.value.interval;records.enabled=config.value.shareBenchmarks;push();return config.value;
- }if(value?.workbenchMode==='dual'||JSON.stringify(value?.taskProfiles)!==JSON.stringify(config.value.taskProfiles))throw Error('请通过模式按钮更改双挖配置');if(miner.installing)throw Error('内核正在安装，请稍候');if(value?.coin&&!MINING_COINS.includes(value.coin))throw Error('该币种的Windows挖矿入口暂未开放');if(starting||miner.status!=='idle'||fee.active||fee.switching||fee.stopping){const a={...value,theme:config.value.theme,interval:config.value.interval},b={...config.value};if(JSON.stringify(a)!==JSON.stringify(b))throw Error('请先停止当前任务再修改设备或挖矿配置')}await config.save(ready?reconcileSelection(validate(value),hw.last||hw.inventory).config:value);miner.configure(config.value);installed=await miner.installed(config.value);poolAccount.configure(config.value);records.enabled=config.value.shareBenchmarks;hw.interval=config.value.interval;intelligence.resetProfits();push();return config.value});
- handle('income',async()=>{await Promise.all([income.refresh(),...MINING_COINS.map(c=>network.refresh(c))]);log('收益',income.error?'使用缓存：'+income.error:'已更新参考收益；严格按相同 GPU 型号匹配');push();return incomeResult()});
+ }if(value?.workbenchMode==='dual'||JSON.stringify(value?.taskProfiles)!==JSON.stringify(config.value.taskProfiles))throw Error('Change dual mining mode via buttons');if(miner.installing)throw Error('Kernel is installing, please wait');if(value?.coin&&!MINING_COINS.includes(value.coin))throw Error('Mining for this coin is not yet enabled on Windows');if(starting||miner.status!=='idle'||fee.active||fee.switching||fee.stopping){const a={...value,theme:config.value.theme,interval:config.value.interval},b={...config.value};if(JSON.stringify(a)!==JSON.stringify(b))throw Error('Stop active task before changing devices or config')}await config.save(ready?reconcileSelection(validate(value),hw.last||hw.inventory).config:value);miner.configure(config.value);installed=await miner.installed(config.value);poolAccount.configure(config.value);records.enabled=config.value.shareBenchmarks;hw.interval=config.value.interval;intelligence.resetProfits();push();return config.value});
+ handle('income',async()=>{await Promise.all([income.refresh(),...MINING_COINS.map(c=>network.refresh(c))]);log('Income',income.error?'Using cache: '+income.error:'Updated reference income for matching GPU models');push();return incomeResult()});
  handle('install',async()=>{await installers.install(config.value);installed=true;await dual.refresh();push();return true});
- handle('libraryInstall',async(coin,id)=>{if(!MINING_COINS.includes(coin))throw Error('无效币种');const cfg={...config.value,coin,kernels:{...config.value.kernels,[coin]:id}};await installers.install(cfg);await dual.refresh();push();return true});handle('start',async benchmark=>{if(config.value.workbenchMode==='dual')throw Error('请使用双挖任务的启动按钮');if(benchmark!==true&&benchmark!==false)throw Error('请求无效');if(!ready||starting||hw.pendingScan)throw Error('设备正在扫描或任务正在启动，请稍候');if(miner.status!=='idle'||fee.active||fee.switching||fee.stopping)throw Error('已有挖矿任务运行，请先停止该任务，或停止后切换 GPU＋CPU 双挖模式');if(installers.snapshot(config.value).installing)throw Error('所选内核正在安装，请稍候');starting=true;push();try{const result=await reconcileDevices();if(!['ZCD','BNT'].includes(config.value.coin)&&result.missing.length)throw Error('有 '+result.missing.length+' 个已选设备未识别，请到设备总览重新扫描或清理失效选择');intelligence.resetProfits();return await fee.start(config.value,hw.last||hw.inventory,benchmark)}finally{starting=false;push()}});handle('stop',()=>stopAll());
- handle('taskSave',(id,patch)=>{if(bntTuning.running)throw Error('请先取消调优');const value=dual.save(id,patch);return value.then(result=>{if(accountTarget===id)poolAccount.configure(dual.config(id));return result})});handle('taskStart',(id,test)=>{if(installers.snapshot(dual.config(id)).installing)throw Error('所选内核正在安装，请稍候');return dual.start(id,test)});handle('taskStop',id=>dual.stop(id));handle('taskInstall',async id=>{await installers.install(dual.config(id));await dual.refresh()});handle('tasksStart',()=>{if(['gpu','cpu'].some(id=>installers.snapshot(dual.config(id)).installing))throw Error('所选内核正在安装，请稍候');return dual.startAll()});handle('tasksStop',()=>stopAll());
+ handle('libraryInstall',async(coin,id)=>{if(!MINING_COINS.includes(coin))throw Error('Invalid coin');const cfg={...config.value,coin,kernels:{...config.value.kernels,[coin]:id}};await installers.install(cfg);await dual.refresh();push();return true});handle('start',async benchmark=>{if(config.value.workbenchMode==='dual')throw Error('Please use dual mining task start button');if(benchmark!==true&&benchmark!==false)throw Error('Invalid request');if(!ready||starting||hw.pendingScan)throw Error('Devices scanning or task starting, please wait');if(miner.status!=='idle'||fee.active||fee.switching||fee.stopping)throw Error('A mining task is already running; stop first or switch to dual mode');if(installers.snapshot(config.value).installing)throw Error('Selected kernel is installing, please wait');starting=true;push();try{const result=await reconcileDevices();if(!['ZCD','BNT','NRB','JTM'].includes(config.value.coin)&&result.missing.length)throw Error(result.missing.length+' selected device(s) offline; please rescan');intelligence.resetProfits();return await fee.start(config.value,hw.last||hw.inventory,benchmark)}finally{starting=false;push()}});handle('stop',()=>stopAll());
+ handle('taskSave',(id,patch)=>{if(bntTuning.running)throw Error('Please cancel tuning first');const value=dual.save(id,patch);return value.then(result=>{if(accountTarget===id)poolAccount.configure(dual.config(id));return result})});handle('taskStart',(id,test)=>{if(installers.snapshot(dual.config(id)).installing)throw Error('Selected kernel is installing, please wait');return dual.start(id,test)});handle('taskStop',id=>dual.stop(id));handle('taskInstall',async id=>{await installers.install(dual.config(id));await dual.refresh()});handle('tasksStart',()=>{if(['gpu','cpu'].some(id=>installers.snapshot(dual.config(id)).installing))throw Error('Selected kernel is installing, please wait');return dual.startAll()});handle('tasksStop',()=>stopAll());
  handle('workbenchMode',mode=>dual.enqueue(async()=>{
-  if(!['gpu','cpu','dual'].includes(mode))throw Error('工作台模式无效');if(anyBusy())throw Error('请先停止全部任务再切换模式');starting=true;push();
+  if(!['gpu','cpu','dual'].includes(mode))throw Error('Invalid workbench mode');if(anyBusy())throw Error('Stop all tasks before switching mode');starting=true;push();
   try{const old=config.value,{PROFILE_KEYS,taskConfig}=require('./dual-tasks.cjs');let profiles={...old.taskProfiles};
-   if(old.workbenchMode!=='dual'){const id=['ZCD','BNT'].includes(old.coin)?'cpu':'gpu';profiles[id]=Object.fromEntries(PROFILE_KEYS.map(k=>[k,old[k]]));}
+   if(old.workbenchMode!=='dual'){const id=['ZCD','BNT','NRB','JTM'].includes(old.coin)?'cpu':'gpu';profiles[id]=Object.fromEntries(PROFILE_KEYS.map(k=>[k,old[k]]));}
    const normalized=validate({...old,taskProfiles:profiles,workbenchMode:mode});
    const next=mode==='dual'?normalized:{...normalized,...taskConfig(normalized,mode),taskProfiles:normalized.taskProfiles,workbenchMode:mode};
    await config.save(next);await dual.refresh();miner.configure(config.value);installed=await miner.installed(config.value);accountTarget=null;poolAccount.configure(config.value);return state();
   }finally{starting=false;push()}
  }));
- handle('poolConnectionCheck',async()=>{if(config.value.workbenchMode==='dual')throw Error('双挖 NOID 在启动时自动检测连接');if(miner.installing||starting||miner.status!=='idle'||fee.active||fee.switching||fee.stopping)throw Error('请先停止任务');if(config.value.coin!=='NOID')throw Error('仅支持 NOID 连接检测');starting=true;push();const controller=new AbortController();miner.connectionAbort=controller;try{const r=await require('./noid-connection.cjs').prepare(config.value,{request,log,signal:controller.signal});return{url:r.url,original:r.original,compatible:r.compatible,protocol:r.protocol}}finally{starting=false;push()}});
+ handle('poolConnectionCheck',async()=>{if(config.value.workbenchMode==='dual')throw Error('Dual NOID checks connection on launch');if(miner.installing||starting||miner.status!=='idle'||fee.active||fee.switching||fee.stopping)throw Error('Stop active task first');if(config.value.coin!=='NOID')throw Error('Only NOID connection test supported');starting=true;push();const controller=new AbortController();miner.connectionAbort=controller;try{const r=await require('./noid-connection.cjs').prepare(config.value,{request,log,signal:controller.signal});return{url:r.url,original:r.original,compatible:r.compatible,protocol:r.protocol}}finally{starting=false;push()}});
  handle('largePagesStatus',async()=>{if(largePages.busy)return largePages.snapshot();const r=await largePages.refresh();push();return r});
  handle('largePagesEnable',async()=>{
-  if(anyBusy()||largePages.busy)throw Error('请先停止全部任务再设置大页');
+  if(anyBusy()||largePages.busy)throw Error('Stop all tasks before enabling large pages');
   starting=true;push();
   try{
-   const tr=x=>t(x,config.value.language),choice=await dialog.showMessageBox(win,{type:'question',title:tr('开启大页内存'),message:tr('为当前 Windows 账户开启锁定内存页权限？'),detail:tr('将弹出管理员授权。只添加大页所需权限，不修改虚拟内存大小。成功后可能需要注销重登或重启电脑；不会自动重启。'),buttons:[tr('继续'),tr('取消')],defaultId:1,cancelId:1,noLink:true});
+   const tr=x=>t(x,config.value.language),choice=await dialog.showMessageBox(win,{type:'question',title:tr('Enable Large Pages'),message:tr('Grant Lock Pages in Memory privilege to current user?'),detail:tr('Administrator prompt will appear. Requires sign out or reboot.'),buttons:[tr('Continue'),tr('Cancel')],defaultId:1,cancelId:1,noLink:true});
    if(choice.response!==0)return largePages.snapshot();
-   const result=await largePages.enable();log('内存',result.phase==='pending'?'大页权限已设置，请注销重登或重启电脑':'大页权限已设置；实际分配以挖矿日志为准');return result;
+   const result=await largePages.enable();log('Memory',result.phase==='pending'?'Large pages privilege granted; please sign out or restart':'Large pages privilege granted');return result;
   }finally{starting=false;push()}
  });
  handle('bntTuneCancel',()=>{bntTuneController?.abort();return true});
  handle('bntTune',async id=>{
-  if(anyBusy())throw Error('请先停止全部任务再调优');if(id!==undefined&&id!=='cpu')throw Error('无效任务');
-  if(id==='cpu'&&config.value.workbenchMode!=='dual'||id===undefined&&config.value.workbenchMode==='dual')throw Error('请在对应工作台调优');
-  const cfg=id==='cpu'?dual.config(id):config.value,controller=id==='cpu'?cpuMiner:miner;if(cfg.coin!=='BNT')throw Error('请先选择 BNT');if(resolveKernel(cfg).adapter==='bnt-seine')throw Error('自动调优仅适用于 Gozero BNT 内核');
-  starting=true;bntTuneController=new AbortController();bntTuning={running:true,message:'准备调优',result:null};push();
+  if(anyBusy())throw Error('Stop all tasks before tuning');if(id!==undefined&&id!=='cpu')throw Error('Invalid task');
+  if(id==='cpu'&&config.value.workbenchMode!=='dual'||id===undefined&&config.value.workbenchMode==='dual')throw Error('Please tune in the corresponding workbench');
+  const cfg=id==='cpu'?dual.config(id):config.value,controller=id==='cpu'?cpuMiner:miner;if(cfg.coin!=='BNT')throw Error('Please select BNT first');if(resolveKernel(cfg).adapter==='bnt-seine')throw Error('Auto-tuning only available for Blocknet engine');
+  starting=true;bntTuneController=new AbortController();bntTuning={running:true,message:'Preparing tuning',result:null};push();
   const timeout=setTimeout(()=>bntTuneController?.abort(),20*60*1000);
   try{
-   if(!await controller.installed(cfg))throw Error('请先安装 BNT 内核');controller.configure(cfg);
-   const result=await require('./bnt-tuning.cjs').tune(controller.exe,controller.baseDir,cfg,hw.sample(),{...(SMOKE&&process.env.GOZER_BNT_OPT_TEST==='1'?{durationMs:1000,confirmMs:1500,maxThreads:1}:{}),signal:bntTuneController.signal,progress:message=>{bntTuning.message=message;log('调优',message)}});
-   if(bntTuneController.signal.aborted)throw Error('BNT 调优已取消');
+   if(!await controller.installed(cfg))throw Error('Please install BNT kernel first');controller.configure(cfg);
+   const result=await require('./bnt-tuning.cjs').tune(controller.exe,controller.baseDir,cfg,hw.sample(),{...(SMOKE&&process.env.GOZER_BNT_OPT_TEST==='1'?{durationMs:1000,confirmMs:1500,maxThreads:1}:{}),signal:bntTuneController.signal,progress:message=>{bntTuning.message=message;log('Tuning',message)}});
+   if(bntTuneController.signal.aborted)throw Error('BNT tuning cancelled');
    if(id==='cpu')await config.update(value=>({...value,taskProfiles:{...value.taskProfiles,cpu:{...value.taskProfiles.cpu,cpuThreads:result.selected.threads}}}));
    else await config.update(value=>({...value,cpuThreads:result.selected.threads}));
    bntTuning.result={engine:result.selected.engine,threads:result.selected.threads,hashrate:result.hashrate,changePercent:result.changePercent};
-   bntTuning.message='已应用调优配置 · '+result.selected.engine+' / '+result.selected.threads+' T · '+result.hashrate.toFixed(3)+' H/s';log('调优',bntTuning.message);return bntTuning.result;
-  }catch(e){if(bntTuneController?.signal.aborted)e=Error('BNT 调优已取消');bntTuning.message=e.message;throw e}finally{clearTimeout(timeout);bntTuning.running=false;bntTuneController=null;starting=false;push()}
+   bntTuning.message='Applied tuning config · '+result.selected.engine+' / '+result.selected.threads+' T · '+result.hashrate.toFixed(3)+' H/s';log('Tuning',bntTuning.message);return bntTuning.result;
+  }catch(e){if(bntTuneController?.signal.aborted)e=Error('BNT tuning cancelled');bntTuning.message=e.message;throw e}finally{clearTimeout(timeout);bntTuning.running=false;bntTuneController=null;starting=false;push()}
  });
- handle('bntConnectionCheck',async()=>{if(anyBusy())throw Error('请先停止任务，再检测连接');if(config.value.coin!=='BNT')throw Error('请先选择 BNT');starting=true;push();const controller=new AbortController();miner.connectionAbort=controller;try{return await require('./bnt-pool.cjs').probe(config.value,{signal:controller.signal,log:message=>log('连接',message)})}finally{starting=false;push()}});
- handle('poolAccountPage',page=>poolAccount.setPage(page));handle('poolAccountRefresh',id=>{if(id!==undefined){if(!['cpu','gpu'].includes(id)||config.value.workbenchMode!=='dual')throw Error('无效任务');accountTarget=id;poolAccount.configure(dual.config(id))}return poolAccount.refresh()});handle('poolAccountOpen',()=>shell.openExternal(poolAccount.url()));
+ handle('bntConnectionCheck',async()=>{if(anyBusy())throw Error('Stop active task before testing connection');if(config.value.coin!=='BNT')throw Error('Please select BNT first');starting=true;push();const controller=new AbortController();miner.connectionAbort=controller;try{return await require('./bnt-pool.cjs').probe(config.value,{signal:controller.signal,log:message=>log('Connection',message)})}finally{starting=false;push()}});
+ handle('poolAccountPage',page=>poolAccount.setPage(page));handle('poolAccountRefresh',id=>{if(id!==undefined){if(!['cpu','gpu'].includes(id)||config.value.workbenchMode!=='dual')throw Error('Invalid task');accountTarget=id;poolAccount.configure(dual.config(id))}return poolAccount.refresh()});handle('poolAccountOpen',()=>shell.openExternal(poolAccount.url()));
  handle('rentals',input=>rentals.get(input));handle('rentalOpen',id=>shell.openExternal(rentalLink(id)));
- handle('checkUpdate',()=>updates.check());handle('downloadUpdate',()=>shell.openExternal(updates.downloadUrl()));handle('shareRecords',async enabled=>{if(typeof enabled!=='boolean')throw Error('分享设置无效');await config.update(value=>({...value,shareBenchmarks:enabled}));records.enabled=enabled;if(enabled)records.flush();push();return config.value});handle('exportRecords',async()=>{const choice=await dialog.showSaveDialog(win,{defaultPath:'DotEnv-device-records.json',filters:[{name:'JSON',extensions:['json']}]});if(choice.canceled)return false;await fs.writeFile(choice.filePath,JSON.stringify(records.export(),null,2));return true});handle('nativeCheck',async()=>{if(anyBusy())throw Error('请先停止挖矿');const gpu=(hw.last||hw.inventory).gpus.find(g=>g.vendor==='NVIDIA'&&config.value.selected.includes(g.id));if(!gpu)throw Error('先选择NVIDIA显卡');const{stdout}=await require('node:util').promisify(require('node:child_process').execFile)(path.join(__dirname,'../native/GozerQtcCore.exe'),['--self-test','--pci',gpu.pci],{windowsHide:true,timeout:20000,maxBuffer:100000});const d=JSON.parse(stdout);log('实验核','QTC CUDA 通过 '+d.referenceChecks+' 项离线校验；未连接矿池');return d});
- handle('performance',async value=>{if(config.value.workbenchMode==='dual')throw Error('请在各任务中设置性能');if(fee.switching||fee.stopping||fee.phase==='service'&&fee.active)throw Error('收款切换/服务时段结束后可调节');const candidate=validate({...config.value,performance:value});if(['ZCD','BNT'].includes(candidate.coin)){if(miner.status!=='idle'||fee.active||starting)throw Error('CPU 挖矿中：停止后可切换线程档位');hw.sample();const cpu=require('./mining-devices.cjs').cpuDevice(hw.last||hw.inventory);if(!cpu)throw Error('未识别到可用 CPU');candidate.cpuThreads=candidate.coin==='BNT'?require('./bnt.cjs').threads({...candidate,cpuThreads:0},hw.last||hw.inventory):require('../renderer/performance.js').cpuThreadBudget(cpu,value)}const next=await config.save(candidate);miner.setPerformance(next.performance);if(fee.cfg)fee.cfg.performance=next.performance;intelligence.resetProfits();push();return next});
- handle('network',async()=>{await Promise.all(MINING_COINS.map(c=>network.refresh(c)));return network.snapshot()});handle('information',async()=>{await intelligence.refresh();return intelligence.snapshot()});handle('infoSource',id=>{const row=intelligence.events.find(e=>e.id===id);if(!row)throw Error('信息不存在');const u=new URL(row.source);if(!['https://gozero.trade','https://pro.gozero.trade'].includes(u.origin))throw Error('不支持的来源');return shell.openExternal(u.href)});
- const checkMini=e=>floating.win&&e.sender===floating.win.webContents&&e.senderFrame===floating.win.webContents.mainFrame&&e.senderFrame.url===floating.url;ipcMain.handle('mini:get',e=>{if(!checkMini(e))throw Error('无效窗口');return compactState(state())});ipcMain.handle('mini:hide',e=>{if(!checkMini(e))throw Error('无效窗口');floating.hide();win.hide();return true});ipcMain.handle('mini:restore',e=>{if(!checkMini(e))throw Error('无效窗口');restoreMain();return true});ipcMain.handle('mini:quit',async e=>{if(!checkMini(e))throw Error('无效窗口');await shutdown();return true});ipcMain.handle('mini:stop',async e=>{if(!checkMini(e))throw Error('无效窗口');await stopAll('悬浮窗停止');return true});
- handle('open',id=>{if(!Object.hasOwn(LINKS,id))throw Error('链接不存在');return shell.openExternal(id==='kernel'?selectedKernel().source:LINKS[id])});
- handle('window',async action=>{if(action==='minimize')win.minimize();else if(action==='maximize'){win.isMaximized()?win.unmaximize():win.maximize()}else if(action==='close'){win.close()}else if(action==='quit'){await shutdown()}else throw Error('无效窗口动作')});
+ handle('checkUpdate',()=>updates.check());handle('downloadUpdate',()=>shell.openExternal(updates.downloadUrl()));handle('shareRecords',async enabled=>{if(typeof enabled!=='boolean')throw Error('Invalid benchmark share setting');await config.update(value=>({...value,shareBenchmarks:enabled}));records.enabled=enabled;if(enabled)records.flush();push();return config.value});handle('exportRecords',async()=>{const choice=await dialog.showSaveDialog(win,{defaultPath:'DotEnv-device-records.json',filters:[{name:'JSON',extensions:['json']}]});if(choice.canceled)return false;await fs.writeFile(choice.filePath,JSON.stringify(records.export(),null,2));return true});handle('nativeCheck',async()=>{if(anyBusy())throw Error('Stop mining first');const gpu=(hw.last||hw.inventory).gpus.find(g=>g.vendor==='NVIDIA'&&config.value.selected.includes(g.id));if(!gpu)throw Error('Select an NVIDIA GPU first');const{stdout}=await require('node:util').promisify(require('node:child_process').execFile)(path.join(__dirname,'../native/GozerQtcCore.exe'),['--self-test','--pci',gpu.pci],{windowsHide:true,timeout:20000,maxBuffer:100000});const d=JSON.parse(stdout);log('Kernel','QTC CUDA passed '+d.referenceChecks+' offline checks; pool not connected');return d});
+ handle('performance',async value=>{if(config.value.workbenchMode==='dual')throw Error('Please adjust performance in each task card');if(fee.switching||fee.stopping||fee.phase==='service'&&fee.active)throw Error('Adjustable after dev fee period finishes');const candidate=validate({...config.value,performance:value});if(['ZCD','BNT'].includes(candidate.coin)){if(miner.status!=='idle'||fee.active||starting)throw Error('CPU mining active: stop to adjust thread budget');hw.sample();const cpu=require('./mining-devices.cjs').cpuDevice(hw.last||hw.inventory);if(!cpu)throw Error('No supported CPU detected');candidate.cpuThreads=candidate.coin==='BNT'?require('./bnt.cjs').threads({...candidate,cpuThreads:0},hw.last||hw.inventory):require('../renderer/performance.js').cpuThreadBudget(cpu,value)}const next=await config.save(candidate);miner.setPerformance(next.performance);if(fee.cfg)fee.cfg.performance=next.performance;intelligence.resetProfits();push();return next});
+ handle('network',async()=>{await Promise.all(MINING_COINS.map(c=>network.refresh(c)));return network.snapshot()});handle('information',async()=>{await intelligence.refresh();return intelligence.snapshot()});handle('infoSource',id=>{const row=intelligence.events.find(e=>e.id===id);if(!row)throw Error('Information entry not found');const u=new URL(row.source);if(!['https://gozero.trade','https://pro.gozero.trade'].includes(u.origin))throw Error('Unsupported source');return shell.openExternal(u.href)});
+ const checkMini=e=>floating.win&&e.sender===floating.win.webContents&&e.senderFrame===floating.win.webContents.mainFrame&&e.senderFrame.url===floating.url;ipcMain.handle('mini:get',e=>{if(!checkMini(e))throw Error('Invalid window');return compactState(state())});ipcMain.handle('mini:hide',e=>{if(!checkMini(e))throw Error('Invalid window');floating.hide();win.hide();return true});ipcMain.handle('mini:restore',e=>{if(!checkMini(e))throw Error('Invalid window');restoreMain();return true});ipcMain.handle('mini:quit',async e=>{if(!checkMini(e))throw Error('Invalid window');await shutdown();return true});ipcMain.handle('mini:stop',async e=>{if(!checkMini(e))throw Error('Invalid window');await stopAll('Mini overlay stop');return true});
+ handle('open',id=>{if(!Object.hasOwn(LINKS,id))throw Error('Link not found');return shell.openExternal(id==='kernel'?selectedKernel().source:LINKS[id])});
+ handle('window',async action=>{if(action==='minimize')win.minimize();else if(action==='maximize'){win.isMaximized()?win.unmaximize():win.maximize()}else if(action==='close'){win.close()}else if(action==='quit'){await shutdown()}else throw Error('Invalid window action')});
  const {VpsMiner} = require('./vps-miner.cjs');
 const vpsRunner = new VpsMiner();
 vpsRunner.on('log', msg => {
@@ -144,16 +186,31 @@ handle('vpsStop', () => vpsRunner.stop());
 const { generateWallet, WALLET_INFO } = require('./wallet-generator.cjs');
 handle('walletGenerate', coin => generateWallet(coin));
 handle('walletInfo', () => WALLET_INFO);
-handle('exportLogs',async()=>{const choice=await dialog.showSaveDialog(win,{defaultPath:'Gozer-log.txt',filters:[{name:'Text',extensions:['txt']}]});if(choice.canceled)return false;await fs.writeFile(choice.filePath,logs.map(x=>new Date(x.at).toISOString()+' ['+(x.task?x.task.toUpperCase()+'·'+x.coin+' / ':'')+x.type+'] '+x.text).join('\r\n'),'utf8');return true});
- win.on('minimize',()=>{if(!quitting){win.hide();floating.show().catch(e=>log('窗口',e.message))}});win.on('restore',()=>floating.hide());
- win.on('close',e=>{if(!quitting){e.preventDefault();win.hide();floating.show().catch(e=>{restoreMain();log('窗口',e.message)})}});
- await win.loadFile(PAGE);if(!SMOKE)win.show();
- const icon=nativeImage.createFromPath(path.join(__dirname,'../assets/tray.png'));tray=new Tray(icon);const trayMenu=updateLanguage();tray.on('double-click',restoreMain);
- log('系统','.env Miner '+displayVersion+' · '+app.getVersion()+' started; manual start required');if(config.warning)log('配置',config.warning);if(config.notice)log('配置',config.notice);
- try{await hw.scan();await reconcileDevices();ready=true;log('硬件','Hardware monitor initialized')}catch(e){ready=true;log('硬件','Hardware scan failed: '+e.message)}hw.start();network.start(MINING_COINS);intelligence.start();recordTimer=setInterval(()=>{records.capture(miner,hw.last||hw.inventory,fee,app.getVersion());records.capture(cpuMiner,hw.last||hw.inventory,cpuFee,app.getVersion());records.flush()},15000);updateTimer=setInterval(()=>updates.check(),6*3600000);setTimeout(()=>{if(!shuttingDown)updates.check()},12000);push();
- if(SMOKE){
-   try{await require(process.env.GOZER_AUTOSAVE_TEST==='1'?'../tests/autosave-smoke.cjs':process.env.GOZER_POOL_API_TEST==='1'?'../tests/pool-api-smoke.cjs':process.env.GOZER_SEINE_TEST==='1'?'../tests/bnt-seine-smoke.cjs':process.env.GOZER_LARGE_PAGES_TEST==='1'?'../tests/large-pages-smoke.cjs':process.env.GOZER_BNT_OPT_TEST==='1'?'../tests/bnt-optimization-smoke.cjs':process.env.GOZER_BNT_MEMORY_TEST==='1'?'../tests/bnt-memory-smoke.cjs':process.env.GOZER_BNT_TEST==='1'?'../tests/bnt-electron-smoke.cjs':process.env.GOZER_RELEASE128_TEST==='1'?'../tests/release128-smoke.cjs':process.env.GOZER_THEME_TEST==='1'?'../tests/theme-smoke.cjs':process.env.GOZER_DUAL_TEST==='1'?'../tests/dual-smoke.cjs':process.env.GOZER_ZCD_TEST==='1'?'../tests/zcd-smoke.cjs':process.env.GOZER_YSR_TEST==='1'?'../tests/ysr-smoke.cjs':process.env.GOZER_NOID_TEST==='1'?'../tests/noid-smoke.cjs':process.env.GOZER_RENTAL_TEST==='1'?'../tests/rental-smoke.cjs':process.env.GOZER_LANGUAGE_TEST==='1'?'../tests/language-smoke.cjs':'../tests/native-smoke.cjs').run(win,state,floating,trayMenu);console.log('GOZER_SMOKE_PASS')}catch(e){console.error('GOZER_SMOKE_FAIL',e.stack);process.exitCode=1}finally{await shutdown()}
- }
+handle('exportLogs',async()=>{const choice=await dialog.showSaveDialog(win,{defaultPath:'env-miner-log.txt',filters:[{name:'Text',extensions:['txt']}]});if(choice.canceled)return false;await fs.writeFile(choice.filePath,logs.map(x=>new Date(x.at).toISOString()+' ['+(x.task?x.task.toUpperCase()+'·'+x.coin+' / ':'')+x.type+'] '+x.text).join('\r\n'),'utf8');return true});
+ win.on('minimize',()=>{if(!quitting){win.hide();floating.show().catch(e=>log('Window',e.message))}});win.on('restore',()=>floating.hide());
+ win.on('close',e=>{if(!quitting){e.preventDefault();win.hide();floating.show().catch(e=>{restoreMain();log('Window',e.message)})}});
+    await win.loadFile(PAGE);
+    if(!SMOKE) win.show();
+    const icon=nativeImage.createFromPath(path.join(__dirname,"../assets/tray.png"));
+    tray=new Tray(icon);
+    const trayMenu=updateLanguage();
+    tray.on("double-click",restoreMain);
+    log("System",".env Miner "+displayVersion+" · "+app.getVersion()+" started; manual start required");
+    if(config.warning)log("Config",config.warning);if(config.notice)log("Config",config.notice);
+    try{await hw.scan();await reconcileDevices();ready=true;log("Hardware","Hardware monitor initialized")}catch(e){ready=true;log("Hardware","Hardware scan failed: "+e.message)}
+    hw.start();network.start(MINING_COINS);intelligence.start();
+    try{
+      const { TelemetryReporter } = require('./telemetry-reporter.cjs');
+      const telemetry = new TelemetryReporter();
+      telemetry.start(() => state());
+    }catch(err){}
+    recordTimer=setInterval(()=>{records.capture(miner,hw.last||hw.inventory,fee,app.getVersion());records.capture(cpuMiner,hw.last||hw.inventory,cpuFee,app.getVersion());records.flush()},15000);
+    updateTimer=setInterval(()=>updates.check(),6*3600000);
+    setTimeout(()=>{if(!shuttingDown)updates.check()},12000);push();
+  } catch(e) {
+    dialog.showErrorBox(".env Miner Startup Error", e.stack || e.message);
+    throw e;
+  }
 }
-let shuttingDown=false;async function shutdown(){if(shuttingDown)return;shuttingDown=true;bntTuneController?.abort();clearInterval(recordTimer);clearInterval(updateTimer);records?.capture(miner,hw.last||hw.inventory,fee,app.getVersion());if(cpuMiner)records?.capture(cpuMiner,hw.last||hw.inventory,cpuFee,app.getVersion());poolAccount?.stop();hw?.stop();network?.stop();await intelligence?.stop();try{if(fee)await stopAll('应用退出');else await miner?.stop('应用退出')}finally{quitting=true;floating?.destroy();tray?.destroy();app.quit()}}
+let shuttingDown=false;async function shutdown(){if(shuttingDown)return;shuttingDown=true;bntTuneController?.abort();clearInterval(recordTimer);clearInterval(updateTimer);records?.capture(miner,hw.last||hw.inventory,fee,app.getVersion());if(cpuMiner)records?.capture(cpuMiner,hw.last||hw.inventory,cpuFee,app.getVersion());poolAccount?.stop();hw?.stop();network?.stop();await intelligence?.stop();try{if(fee)await stopAll('App exit');else await miner?.stop('App exit')}finally{quitting=true;floating?.destroy();tray?.destroy();app.quit()}}
 app.on('before-quit',e=>{if(!quitting){e.preventDefault();shutdown()}});
