@@ -33,7 +33,7 @@ function resolve(config){
  if(config.coin==='MDS')return{id:'mds-miner-1.0.0',name:'Midstate BLAKE3 Miner',version:'1.0.0',exe:'mds-miner.exe',selection,installed:true};
  if(config.coin==='NRB')return{id:'nrb-cpu-1.0.0',name:'Nerbus VerusHash CPU Miner',version:'1.0.0',exe:'nrb-miner.exe',selection,installed:true};
  if(config.coin==='JTM')return{id:'towerminer-1.5.1',name:'towerminer',version:'1.5.1',exe:'towerminer.exe',selection,installed:true};
- if(config.coin==='RGR'){const isOfficial=(selection==='rigor-miner-0.2.0');return{id:'rigor-miner-0.2.0',name:isOfficial?'Rigor Chain Official Miner':'Rigor OpuHash GPU Miner',version:isOfficial?'0.2.0':'1.0.0',exe:isOfficial?'rigor-core.exe':'rigor-miner.exe',selection,installed:true};}
+ if(config.coin==='RGR'){const isCpu=(config.workbenchMode==='cpu'||selection==='rigor-miner-0.2.0');return{id:'rigor-miner-0.2.0',name:isCpu?'Rigor Chain Official Miner':'Rigor OpuHash GPU Miner',version:isCpu?'0.2.0':'1.0.0',exe:isCpu?'rigor-core.exe':'rigor-miner.exe',selection,installed:true};}
  return{id:ID,selection,...KRIG};
 }
 module.exports={KRIG,choices,validChoice,resolve};
