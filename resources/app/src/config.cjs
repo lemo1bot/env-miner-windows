@@ -2,7 +2,7 @@
 const fs=require('node:fs/promises'),path=require('node:path');
 const {validChoice}=require('./kernel-catalog.cjs');
 const {poolChoices,recommendedBackups}=require('./pool-catalog.cjs');
-const COIN_LIST=['PRL','QTC','TSC','NOID','YSR','ZCD','BNT','CMFD','NACR','XID','MDS','NRB','JTM'];
+const COIN_LIST=['PRL','QTC','TSC','NOID','YSR','ZCD','BNT','CMFD','NACR','XID','MDS','NRB','JTM','RGR'];
 const DEFAULT={
   version:1,
   cpuThreads:0,
@@ -27,9 +27,10 @@ const DEFAULT={
     XID:[],
     MDS:[],
     NRB:[],
-    JTM:[]
+    JTM:[],
+    RGR:[]
   },
-  kernels:{BNT:'auto',ZCD:'auto',YSR:'auto',NOID:'auto',PRL:'auto',QTC:'auto',TSC:'auto',CMFD:'auto',NACR:'auto',XID:'auto',MDS:'auto',NRB:'auto',JTM:'auto'},
+  kernels:{BNT:'auto',ZCD:'auto',YSR:'auto',NOID:'auto',PRL:'auto',QTC:'auto',TSC:'auto',CMFD:'auto',NACR:'auto',XID:'auto',MDS:'auto',NRB:'auto',JTM:'auto',RGR:'auto'},
   performance:75,
   shareBenchmarks:false,
   theme:'dark',
@@ -53,7 +54,8 @@ const DEFAULT={
     XID:'',
     MDS:'795f5d7a1f7a1e2268a9757d60b9ba9981d561d7b19c2e9508d7765e29d9a49d0aa09fd4',
     NRB:'NYpwEcqL7kv996izQWzB1iBEv62xJ4Y17v',
-    JTM:'j1a5mcsk96aw55x7tkgfrp22ufd2cqef5k0s7vr6xj5gtk3p6pd9hqcvl0rc'
+    JTM:'j1a5mcsk96aw55x7tkgfrp22ufd2cqef5k0s7vr6xj5gtk3p6pd9hqcvl0rc',
+    RGR:'rg1q9m002y0hpuy9kxrtpud3pex2pj7kypjxjh60t9'
   },
   worker:'DotEnv',
   pools:{
@@ -69,18 +71,19 @@ const DEFAULT={
     XID:poolChoices('XID')[0].url,
     MDS:poolChoices('MDS')[0].url,
     NRB:poolChoices('NRB')[0].url,
-    JTM:poolChoices('JTM')[0].url
+    JTM:poolChoices('JTM')[0].url,
+    RGR:poolChoices('RGR')[0].url
   },
   manualWatts:null,
-  manualInputs:{BNT:{},ZCD:{},YSR:{},NOID:{},PRL:{},QTC:{},TSC:{},CMFD:{},NACR:{},XID:{},MDS:{},NRB:{},JTM:{}}
+  manualInputs:{BNT:{},ZCD:{},YSR:{},NOID:{},PRL:{},QTC:{},TSC:{},CMFD:{},NACR:{},XID:{},MDS:{},NRB:{},JTM:{},RGR:{}}
 };
 
 function validatePool(value){
   if(typeof value!=='string'||value.length>280)throw Error('Invalid pool URL');
   const u=new URL(value);
-  if(!['stratum+ssl:','stratum+tcp:','cmfd+tls:'].includes(u.protocol))throw Error('Pool URL requires stratum+ssl://, stratum+tcp://, or cmfd+tls://');
+  if(!['stratum+ssl:','stratum+tcp:','cmfd+tls:','http:','https:'].includes(u.protocol))throw Error('Pool URL requires stratum+ssl://, stratum+tcp://, cmfd+tls://, http://, or https://');
   if(!u.hostname)throw Error('Pool host required');
-  if(u.protocol!=='cmfd+tls:'&&(u.username||u.password||u.search||u.hash||(u.pathname&&u.pathname!=='/')))throw Error('Pool parameters invalid');
+  if(!['cmfd+tls:','http:','https:'].includes(u.protocol)&&(u.username||u.password||u.search||u.hash||(u.pathname&&u.pathname!=='/')))throw Error('Pool parameters invalid');
   if(!u.port||+u.port<1||+u.port>65535)throw Error('Invalid pool port');
   return value;
 }
@@ -141,11 +144,12 @@ function validate(c){
   if(out.wallets.MDS&&!/^[0-9a-fA-F]{64,72}$/.test(out.wallets.MDS))throw Error('MDS requires valid hexadecimal address');
   if(out.wallets.NRB&&!out.wallets.NRB.startsWith('N'))throw Error('NRB address must start with N');
   if(out.wallets.JTM&&!out.wallets.JTM.startsWith('j1'))throw Error('JTM address must start with j1');
+  if(out.wallets.RGR&&!out.wallets.RGR.startsWith('rg1q'))throw Error('RGR address must start with rg1q');
   if(out.coin==='NOID'&&out.worker.includes('.'))throw Error('NOID worker name does not support dots');
   if(c.performance!==undefined){if(!Number.isInteger(c.performance)||c.performance<50||c.performance>100)throw Error('Performance budget must be 50-100');out.performance=c.performance}
   if(c.shareBenchmarks!==undefined){if(typeof c.shareBenchmarks!=='boolean')throw Error('Invalid share setting');out.shareBenchmarks=c.shareBenchmarks}
   if(c.workbenchMode!==undefined&&!['gpu','cpu','dual'].includes(c.workbenchMode))throw Error('Invalid workbench mode');
-  out.workbenchMode=c.workbenchMode||(['ZCD','BNT','NRB','JTM'].includes(out.coin)?'cpu':'gpu');
+  out.workbenchMode=c.workbenchMode||(['ZCD','BNT','NRB','JTM','RGR'].includes(out.coin)?'cpu':'gpu');
   if(c.taskProfiles!==undefined)out.taskProfiles=require('./dual-tasks.cjs').normalizeProfiles(out,c.taskProfiles,validate);
   return out;
 }

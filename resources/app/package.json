@@ -1,7 +1,7 @@
 {
   "name": "dot-env-miner",
   "productName": ".env",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "description": ".env Mining Workstation",
   "main": "src/main.cjs",
@@ -12,7 +12,7 @@
   "engines": {
     "node": ">=22"
   },
-  "displayVersion": "v1.0.3",
+  "displayVersion": "v1.0.4",
   "releaseChannel": "beta",
   "license": "MIT",
   "repository": {

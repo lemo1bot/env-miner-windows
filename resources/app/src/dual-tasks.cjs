@@ -15,7 +15,7 @@ function normalizeProfiles(base,profiles,validate){
  for(const id of ['gpu','cpu']){
   const input=profiles[id];if(input!==undefined&&(!input||typeof input!=='object'||Array.isArray(input)||Object.keys(input).some(k=>!PROFILE_KEYS.includes(k))))throw Error('Invalid task configuration fields');
   const cfg=validate({...taskConfig({...base,taskProfiles:undefined},id),...input});
-  if(id==='cpu'?!['ZCD','BNT','NRB','JTM'].includes(cfg.coin):!GPU_COINS.includes(cfg.coin))throw Error('Coin does not match task device type');
+  if(id==='cpu'?!['ZCD','BNT','NRB','JTM','RGR'].includes(cfg.coin):!GPU_COINS.includes(cfg.coin))throw Error('Coin does not match task device type');
   result[id]=Object.fromEntries(PROFILE_KEYS.map(k=>[k,cfg[k]]));
  }
  return result;

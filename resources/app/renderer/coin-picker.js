@@ -24,7 +24,7 @@
  $('#coin-search').addEventListener('input',()=>window.renderCoinPicker(state));
  document.querySelectorAll('[data-coin-kind]').forEach(b=>b.onclick=()=>{kind=b.dataset.coinKind;document.querySelectorAll('[data-coin-kind]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));window.renderCoinPicker(state)});
  window.renderCpuMining=s=>{
-  const cpu=['ZCD','BNT','NRB','JTM'].includes(s.config.coin),blocked=busy(s);tuning.hidden=s.config.coin!=='BNT'||s.kernel.adapter==='bnt-seine';tuneButton.disabled=blocked||!s.kernel.installed;cancelTune.hidden=!s.bntTuning?.running;cancelTune.disabled=false;GozerI18n.setText(tuneMessage,s.bntTuning?.message||'Offline benchmark · ~5–15 min · Applied when finished');$('#cpu-options').hidden=!cpu;$('#pool-row').hidden=false;$('#zcd-node').hidden=!cpu;
+  const cpu=['ZCD','BNT','NRB','JTM','RGR'].includes(s.config.coin),blocked=busy(s);tuning.hidden=s.config.coin!=='BNT'||s.kernel.adapter==='bnt-seine';tuneButton.disabled=blocked||!s.kernel.installed;cancelTune.hidden=!s.bntTuning?.running;cancelTune.disabled=false;GozerI18n.setText(tuneMessage,s.bntTuning?.message||'Offline benchmark · ~5–15 min · Applied when finished');$('#cpu-options').hidden=!cpu;$('#pool-row').hidden=false;$('#zcd-node').hidden=!cpu;
   $('#performance').disabled=cpu&&blocked;$('#performance').title=cpu&&blocked?'CPU mining active: stop to adjust threads':'';$('#cpu-threads').disabled=blocked;$('#worker').disabled=blocked;$('#zcd-password').disabled=blocked;
   $('#mining-devices').nextElementSibling.hidden=cpu;
   text('#device-runtime-note',cpu?'CPU task · Does not affect GPU selection':'Per-PCI scheduling / totals by algorithm');
@@ -39,7 +39,7 @@
   text('#zcd-shares',j?.shares?'A '+j.shares.accepted+' / R '+j.shares.rejected:'A — / R —');
   text('#fee-note',s.kernel.kernelFee===0?'XMRig Kernel fee 0% · App fee 0.5%':'XMRig Kernel fee 1% · App fee 0.5%');
   text('#compatibility','ZCD · CPU RandomX v2 (rx/2); enter primary and backup pools to start.');
-  text('#zcd-note',s.config.coin==='NRB'?'Enter Stratum pool URL. Payout address requires N address.':s.config.coin==='JTM'?'Enter Stratum pool URL. Payout address requires j1 address.':'Enter Stratum pool URL. Payout address requires 02 persistent address.');
+  text('#zcd-note',s.config.coin==='RGR'?'Enter RPC/Stratum node or pool URL. Payout address requires rg1q address.':s.config.coin==='NRB'?'Enter Stratum pool URL. Payout address requires N address.':s.config.coin==='JTM'?'Enter Stratum pool URL. Payout address requires j1 address.':'Enter Stratum pool URL. Payout address requires 02 persistent address.');
   text('#measured-net','ZCD price and income not connected');
   const invalidThreads=s.config.cpuThreads>(d?.maxThreads||0);
   const noFee=!s.serviceFee?.addresses?.[s.config.coin];

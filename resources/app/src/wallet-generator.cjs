@@ -406,6 +406,7 @@ function generateWallet(coin) {
     case 'MDS': throw Error('Midstate (MDS) wallet generation is available on official web wallet: https://midstate.cash/wallet/');
     case 'NRB': throw Error('Nerbus (NRB) wallet generation is available on official wallet: https://nerbus.com/');
     case 'JTM': throw Error('Jetsam (JTM) wallet generation is available on official desktop wallet: https://jetsamchain.com/zh/');
+    case 'RGR': throw Error('Rigor (RGR) wallet generation is available on official wallet: https://github.com/rigorchain/rigorchain/releases');
     default: throw Error(`Unsupported coin: ${coin}`);
   }
 }
@@ -423,7 +424,8 @@ const WALLET_INFO = Object.freeze({
   XID: { name: 'xCoin', website: 'https://pool.ariabrain.com/xid.html', algorithm: 'MetalDAG (GPU)' },
   MDS: { name: 'Midstate', website: 'https://midstate.cash/', algorithm: 'BLAKE3 (PoW)' },
   NRB: { name: 'Nerbus', website: 'https://nerbus.com/', algorithm: 'VerusHash (CPU)' },
-  JTM: { name: 'Jetsam', website: 'https://jetsamchain.com/', algorithm: 'TowerWalk (CPU)' }
+  JTM: { name: 'Jetsam', website: 'https://jetsamchain.com/', algorithm: 'TowerWalk (CPU)' },
+  RGR: { name: 'Rigor', website: 'https://rigorchain.com/', algorithm: 'OpuHash (CPU)' }
 });
 
 module.exports = { generateWallet, WALLET_INFO };

@@ -39,6 +39,11 @@ function poolChoices(coin){
   {label:'Jetsam Network Pool · TCP 8666',url:'stratum+tcp://pool.jetsamchain.com:8666'},
   {label:'Jetsam Local Relay · TCP 8666',url:'stratum+tcp://127.0.0.1:8666'}
  ];
+ if(coin==='RGR')return[
+  {label:'Rigor Seed Node · Stratum TCP 8761',url:'stratum+tcp://seed.rigorchain.com:8761'},
+  {label:'Rigor Seed1 Node · Stratum TCP 8761',url:'stratum+tcp://seed1.rigorchain.com:8761'},
+  {label:'Rigor Local Node · RPC HTTP 8761',url:'http://127.0.0.1:8761'}
+ ];
  return [];
 }
 function recommendedBackups(coin,primary){const rows=poolChoices(coin);return rows.some(r=>r.url===primary)?rows.slice(0,3).filter(r=>r.url!==primary).slice(0,2).map(r=>r.url):[]}

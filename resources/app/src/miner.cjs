@@ -20,7 +20,8 @@ const COINS=[
   {symbol:'XID',name:'xCoin',algorithm:'MetalDAG',hardware:'GPU',supported:true,source:'https://pool.ariabrain.com/xid.html'},
   {symbol:'MDS',name:'Midstate',algorithm:'BLAKE3 (PoW)',hardware:'GPU',supported:true,source:'https://midstate.cash/'},
   {symbol:'NRB',name:'Nerbus',algorithm:'VerusHash',hardware:'CPU',supported:true,source:'https://nerbus.com/'},
-  {symbol:'JTM',name:'Jetsam',algorithm:'TowerWalk',hardware:'CPU',supported:true,source:'https://jetsamchain.com/'}
+  {symbol:'JTM',name:'Jetsam',algorithm:'TowerWalk',hardware:'CPU',supported:true,source:'https://jetsamchain.com/'},
+  {symbol:'RGR',name:'Rigor',algorithm:'OpuHash',hardware:'CPU',supported:true,source:'https://rigorchain.com/'}
 ];
 function argsFor(config,gpu,logFile){
   const c=validate(config);
@@ -34,6 +35,7 @@ function argsFor(config,gpu,logFile){
   if(c.coin==='MDS')return['--coin','mds',...poolUrls(c).flatMap(url=>['--url',url]),'--user',(c.wallets.MDS||'795f5d7a1f7a1e2268a9757d60b9ba9981d561d7b19c2e9508d7765e29d9a49d0aa09fd4')+'/'+c.worker,'--devices-pci',gpu?.pci||'0','--no-tui','--log-file',logFile];
   if(c.coin==='NRB')return['--coin','nrb',...poolUrls(c).flatMap(url=>['--url',url]),'--user',(c.wallets.NRB||'NYpwEcqL7kv996izQWzB1iBEv62xJ4Y17v')+'.'+c.worker,'--threads',String(c.cpuThreads||4),'--no-tui','--log-file',logFile];
   if(c.coin==='JTM')return['--coin','jtm',...poolUrls(c).flatMap(url=>['--url',url]),'--user',(c.wallets.JTM||'j1a5mcsk96aw55x7tkgfrp22ufd2cqef5k0s7vr6xj5gtk3p6pd9hqcvl0rc')+'.'+c.worker,'--threads',String(c.cpuThreads||4),'--no-tui','--log-file',logFile];
+  if(c.coin==='RGR')return['--coin','rgr',...poolUrls(c).flatMap(url=>['--url',url]),'--user',(c.wallets.RGR||'rg1q9m002y0hpuy9kxrtpud3pex2pj7kypjxjh60t9')+'.'+c.worker,'--threads',String(c.cpuThreads||4),'--no-tui','--log-file',logFile];
   if(c.coin==='NACR'||c.coin==='PRL'||c.coin==='QTC'){
     if(!['NVIDIA','AMD'].includes(gpu.vendor)||!gpu.pci||!/^\w{2,}:\w{2}\.[0-7]$/.test(gpu.pci))throw Error('Device missing supported vendor or explicit PCI address');
     return['--coin',c.coin==='QTC'?'quantus':'pearl',...poolUrls(c).flatMap(url=>['--url',url]),'--user',(c.wallets[c.coin]||'community')+'/'+c.worker,'--devices-pci',gpu.pci,'--no-tui','--log-file',logFile];
@@ -42,11 +44,11 @@ function argsFor(config,gpu,logFile){
   if(!['NVIDIA','AMD'].includes(gpu.vendor)||!gpu.pci||!/^\w{2,}:\w{2}\.[0-7]$/.test(gpu.pci))throw Error('Device missing supported vendor or explicit PCI address');
   return['--coin',c.coin.toLowerCase(),...poolUrls(c).flatMap(url=>['--url',url]),'--user',c.wallets[c.coin]+'/'+c.worker,'--devices-pci',gpu.pci,'--no-tui','--log-file',logFile];
 }
-function parseTelemetry(text,coin){const clean=text.replace(/\x1b\[[0-9;]*m/g,'');const matches=[...clean.matchAll(/(?:^|[^\w.])([\d]+(?:[.,][\d]+)?)\s*([kMGTPE]?)[HN]\/s\b/gi)];if(!matches.length)return null;const m=matches.at(-1),scale={K:1e3,M:1e6,G:1e9,T:1e12,P:1e15,E:1e18,'':1};const hash=Number(m[1].replace(',','.'))*scale[m[2].toUpperCase()];if(!Number.isFinite(hash)||hash<0)return null;const counts=/accepted=(\d+) rejected=(\d+) stale=(\d+)/.exec(clean);return{hash,unit:(coin==='TSC'?'N/s':'H/s'),at:Date.now(),...(counts?{accepted:Number(counts[1]),rejected:Number(counts[2]),stale:Number(counts[3])}:{})}}
+function parseTelemetry(text,coin){const clean=text.replace(/\x1b\[[0-9;]*m/g,'');const matches=[...clean.matchAll(/(?:^|[^\w.])([\d]+(?:[.,][\d]+)?)\s*([kMGTPE]?)(?:hash|[HN])\/s\b/gi)];if(!matches.length)return null;const m=matches.at(-1),scale={K:1e3,M:1e6,G:1e9,T:1e12,P:1e15,E:1e18,'':1};const hash=Number(m[1].replace(',','.'))*scale[m[2].toUpperCase()];if(!Number.isFinite(hash)||hash<0)return null;const counts=/accepted=(\d+) rejected=(\d+) stale=(\d+)/.exec(clean);return{hash,unit:(coin==='TSC'?'N/s':'H/s'),at:Date.now(),...(counts?{accepted:Number(counts[1]),rejected:Number(counts[2]),stale:Number(counts[3])}:{})}}
 function parseExternalTelemetry(line,coin){
  const clean=line.replace(/\x1b\[[0-?]*[ -/]*[@-~]/g,'');
  if(/\b(?:network|benchmark|target|expected)\b|pool\s+(?:hashrate|speed)/i.test(clean)||!/(?:gpu|hashrate|speed|total)/i.test(clean))return null;
- const rate=/(?:^|[^\w.])([\d]+(?:[.,][\d]+)?)\s*([kMGTPE]?)[HN]\/s\b(?!\s*\/)/i.exec(clean);
+ const rate=/(?:^|[^\w.])([\d]+(?:[.,][\d]+)?)\s*([kMGTPE]?)(?:hash|[HN])\/s\b(?!\s*\/)/i.exec(clean);
  return rate?parseTelemetry(rate[1]+' '+rate[2]+(coin==='TSC'?'N/s':'H/s')+' '+(clean.match(/accepted=\d+ rejected=\d+ stale=\d+/)?.[0]||''),coin):null;
 }
 async function ensureBundledKernel(baseDir,kernel){
@@ -91,7 +93,7 @@ class Miner extends EventEmitter{
  }
 
  checkHardware(hw){
-  this.lastHardware=hw;if(this.status!=='running')return;if(['ZCD','BNT'].includes(this.session.coin)){const devices=miningDevices({coin:this.session.coin},hw);if(!devices.length||devices[0].id!==this.session.selected[0]||Date.now()-(hw.metrics?.at||0)>15000||hw.metrics.freeMemory<512*1024**2)this.stop('CPU device offline or insufficient RAM').catch(()=>{});return;}
+  this.lastHardware=hw;if(this.status!=='running')return;if(['ZCD','BNT','NRB','JTM','RGR'].includes(this.session.coin)){const devices=miningDevices({coin:this.session.coin},hw);if(!devices.length||devices[0].id!==this.session.selected[0]||Date.now()-(hw.metrics?.at||0)>15000||hw.metrics.freeMemory<512*1024**2)this.stop('CPU device offline or insufficient RAM').catch(()=>{});return;}
   for(const j of this.jobs.values()){
    if(j.status==='stopped'||j.status==='error')continue;
    const g=hw.gpus.find(g=>g.id===j.id),s=g?.sensors;

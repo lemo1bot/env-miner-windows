@@ -13,7 +13,8 @@ const COINS={
   XID:{name:'xCoin',unit:'H/s',interval:30000},
   MDS:{name:'Midstate',unit:'H/s',interval:30000},
   NRB:{name:'Nerbus',unit:'H/s',interval:30000},
-  JTM:{name:'Jetsam',unit:'H/s',interval:30000}
+  JTM:{name:'Jetsam',unit:'H/s',interval:30000},
+  RGR:{name:'Rigor',unit:'H/s',interval:30000}
 };
 const number=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))?Number(v):null;
 const timestamp=v=>typeof v==='number'?v*1000:Date.parse(v||'');
@@ -35,7 +36,7 @@ class Network{
  snapshot(){const now=Date.now();return Object.keys(COINS).map(coin=>{const c=this.coins[coin];return c?{...c,networkStale:c.networkStale||now-c.networkAt>180000,priceStale:c.priceStale||now-c.priceAt>180000,referenceStale:c.referenceStale||now-c.referenceAt>900000,refreshing:this.pending.has(coin)}:{coin,name:COINS[coin].name,unit:COINS[coin].unit,networkStale:true,priceStale:true,referenceStale:true,refreshing:this.pending.has(coin)}})}
  async refresh(coin,force=false){
   if(!COINS[coin])throw Error('Unknown coin: '+coin);
-  if(['ZCD','BNT','CMFD','NACR','XID','MDS','NRB','JTM'].includes(coin))return null;
+  if(['ZCD','BNT','CMFD','NACR','XID','MDS','NRB','JTM','RGR'].includes(coin))return null;
   if(this.pending.has(coin))return this.pending.get(coin);
   if(!force&&Date.now()-(this.coins[coin]?.checkedAt||0)<COINS[coin].interval)return this.coins[coin];
   const job=(async()=>{try{

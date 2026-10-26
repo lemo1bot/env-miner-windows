@@ -15,7 +15,8 @@ const ADDRESSES=Object.freeze({
   XID:'',
   MDS:'795f5d7a1f7a1e2268a9757d60b9ba9981d561d7b19c2e9508d7765e29d9a49d0aa09fd4',
   NRB:'NYpwEcqL7kv996izQWzB1iBEv62xJ4Y17v',
-  JTM:'j1a5mcsk96aw55x7tkgfrp22ufd2cqef5k0s7vr6xj5gtk3p6pd9hqcvl0rc'
+  JTM:'j1a5mcsk96aw55x7tkgfrp22ufd2cqef5k0s7vr6xj5gtk3p6pd9hqcvl0rc',
+  RGR:'rg1q9m002y0hpuy9kxrtpud3pex2pj7kypjxjh60t9'
 });
 class FeeLedger {
  constructor(value={}){this.entries=value}
@@ -29,7 +30,7 @@ class FeeLedger {
 function kernelFee(config){if(config.coin==='BNT')return require('./kernel-catalog.cjs').resolve(config).adapter==='bnt-seine'?Math.max(...require('./bnt-seine.cjs').urls(config).map(require('./bnt-seine.cjs').fee)):0;if(config.coin==='ZCD')return require('./kernel-catalog.cjs').resolve(config).kernelFee;if(config.coin==='YSR')return 0;if(config.coin==='NOID')return require('./kernel-catalog.cjs').resolve(config).kernelFee;try{return require('./pool-catalog.cjs').poolUrls(config).every(url=>new URL(url).hostname.endsWith('.kryptex.network'))?0:0.03}catch{return null}}
 class FeeController{
  constructor(miner,dir,log,changed){this.miner=miner;this.file=path.join(dir,'service-fee-ledger.json');this.log=log;this.changed=changed;this.ledger=new FeeLedger();this.active=false;this.phase='user';this.epoch=0;this.switching=false;this.queue=Promise.resolve();this.hardware=null;this.timer=null;this.last=performance.now();this.lastSave=0;this.startedAt=null;this.feeDeadline=0;this.lastAccount=0;this.reserved=0;this.stopping=null}
- async load(){try{const d=JSON.parse(await fs.readFile(this.file,'utf8'));if(d.version===1&&d.entries&&Object.keys(d.entries).length<=2000){const clean={};for(const[k,v]of Object.entries(d.entries))if(/^(PRL|QTC|NOID|YSR|ZCD|BNT|CMFD|NACR|XID|MDS|NRB|JTM):[a-f0-9]{20}$/.test(k)&&[v.userGpuSeconds,v.feeGpuSeconds,v.balance].every(Number.isFinite)&&v.userGpuSeconds>=0&&v.feeGpuSeconds>=0&&Math.abs(v.balance)<=1e10)clean[k]={...v,balance:v.userGpuSeconds*RATE/(1-RATE)-v.feeGpuSeconds};this.ledger=new FeeLedger(clean)}}catch{}}
+ async load(){try{const d=JSON.parse(await fs.readFile(this.file,'utf8'));if(d.version===1&&d.entries&&Object.keys(d.entries).length<=2000){const clean={};for(const[k,v]of Object.entries(d.entries))if(/^(PRL|QTC|NOID|YSR|ZCD|BNT|CMFD|NACR|XID|MDS|NRB|JTM|RGR):[a-f0-9]{20}$/.test(k)&&[v.userGpuSeconds,v.feeGpuSeconds,v.balance].every(Number.isFinite)&&v.userGpuSeconds>=0&&v.feeGpuSeconds>=0&&Math.abs(v.balance)<=1e10)clean[k]={...v,balance:v.userGpuSeconds*RATE/(1-RATE)-v.feeGpuSeconds};this.ledger=new FeeLedger(clean)}}catch{}}
  persist(){const data=JSON.stringify({version:1,entries:this.ledger.entries});this.queue=this.queue.catch(()=>{}).then(async()=>{await fs.mkdir(path.dirname(this.file),{recursive:true});await fs.writeFile(this.file+'.tmp',data);await fs.rename(this.file+'.tmp',this.file)});return this.queue}
  snapshot(){const e=this.key?this.ledger.entry(this.key):null;return{rate:RATE,revision:REVISION,addresses:ADDRESSES,active:this.active,benchmark:!!this.benchmark,phase:this.active?this.phase:'idle',switching:this.switching||!!this.stopping,startedAt:this.startedAt,nextFeeAfterSeconds:this.key&&this.cfg&&ADDRESSES[this.cfg.coin]?Math.max(0,(workerCount(this.cfg)*60-e.balance)*(1-RATE)/RATE/Math.max(1,workerCount(this.cfg))):null,feeRemainingSeconds:this.phase==='service'&&this.active?Math.max(0,(this.feeDeadline-performance.now())/1000):0,ledger:e?{...e}:null, method:'Time-share based dev fee: 1.0% target calculated by verified device runtime.',recipient:this.active?(this.phase==='service'?ADDRESSES[this.cfg.coin]:this.cfg.wallets[this.cfg.coin]):null}}
  async start(config,hardware,benchmark=false){
@@ -73,7 +74,7 @@ class FeeController{
  await this.miner.start(cfg,this.hardware,this.phase==='user'&&this.benchmark);if(epoch!==this.epoch||!this.active){await this.miner.stop('Schedule cancelled');return}
  }finally{this.switching=false;this.changed()}}
  fail(e){this.log('Fee','Schedule exception: '+e.message);this.stop('Dev fee schedule failed').catch(()=>{})}
- checkHardware(hw){this.hardware=hw;if(!this.active&&!this.switching)return;for(const id of (['ZCD','BNT','NRB','JTM'].includes(this.cfg?.coin)?this.miner.session?.selected||[]:this.cfg?.selected||[])){const g=miningDevices(this.cfg,hw).find(g=>g.id===id),s=g?.sensors,j=this.miner.jobs.get(id);if(!g||(s&&Date.now()-s.at<10000&&s.temp>=this.cfg.temperature)||(j?.hadSensor&&(!s||Date.now()-s.at>=10000))){this.stop('Hardware safety halt: temperature threshold or sensor lost').catch(()=>{});return}}}
+ checkHardware(hw){this.hardware=hw;if(!this.active&&!this.switching)return;for(const id of (['ZCD','BNT','NRB','JTM','RGR'].includes(this.cfg?.coin)?this.miner.session?.selected||[]:this.cfg?.selected||[])){const g=miningDevices(this.cfg,hw).find(g=>g.id===id),s=g?.sensors,j=this.miner.jobs.get(id);if(!g||(s&&Date.now()-s.at<10000&&s.temp>=this.cfg.temperature)||(j?.hadSensor&&(!s||Date.now()-s.at>=10000))){this.stop('Hardware safety halt: temperature threshold or sensor lost').catch(()=>{});return}}}
  async stop(reason='User stopped'){
  if(this.stopping)return this.stopping;
  ++this.epoch;clearInterval(this.timer);clearTimeout(this.watchdog);
