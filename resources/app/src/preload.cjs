@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld('gozer',Object.freeze({
  language:value=>call('language',value),poolAccountPage:page=>call('poolAccountPage',page),poolAccountRefresh:id=>call('poolAccountRefresh',id),poolAccountOpen:()=>call('poolAccountOpen'),checkUpdate:()=>call('checkUpdate'),downloadUpdate:()=>call('downloadUpdate'),shareRecords:value=>call('shareRecords',value),exportRecords:()=>call('exportRecords'),nativeCheck:()=>call('nativeCheck'),performance:value=>call('performance',value),network:()=>call('network'),information:()=>call('information'),infoSource:id=>call('infoSource',id),bootstrap:()=>call('bootstrap'),scan:()=>call('scan'),save:v=>call('save',v),income:()=>call('income'),install:()=>call('install'),start:test=>call('start',test===true),stop:()=>call('stop'),window:a=>call('window',a),open:id=>call('open',id),exportLogs:()=>call('exportLogs'),
  vpsStart:data=>call('vpsStart',data),vpsStop:()=>call('vpsStop'),
  walletGenerate:coin=>call('walletGenerate',coin),walletInfo:()=>call('walletInfo'),
+ minersList:()=>call('minersManagerList'),minerTest:coin=>call('minersManagerTest',coin),minerUpdate:coin=>call('minersManagerUpdate',coin),minersTestAll:()=>call('minersManagerTestAll'),minersUpdateAll:()=>call('minersManagerUpdateAll'),
  onVpsLog:handler=>{const listener=(_e,val)=>handler(val);ipcRenderer.on('vps-log',listener);return()=>ipcRenderer.removeListener('vps-log',listener)},
  subscribe:handler=>{const listener=(_e,value)=>handler(value);ipcRenderer.on('state',listener);return()=>ipcRenderer.removeListener('state',listener)}
 }));

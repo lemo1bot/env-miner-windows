@@ -15,6 +15,7 @@ function choices(coin){
  if(coin==='MDS')return[{id:'auto',label:'Recommended · Midstate BLAKE3 Miner 1.0.0',disabled:false},{id:'mds-miner-1.0.0',label:'Midstate BLAKE3 Miner 1.0.0 · Sequential BLAKE3',disabled:false}];
  if(coin==='NRB')return[{id:'auto',label:'Recommended · Nerbus VerusHash CPU Miner 1.0.0',disabled:false},{id:'nrb-cpu-1.0.0',label:'Nerbus CPU Miner 1.0.0 · VerusHash 2.2',disabled:false}];
  if(coin==='JTM')return[{id:'auto',label:'Recommended · Jetsam TowerMiner CPU 1.5.1',disabled:false},{id:'towerminer-1.5.1',label:'towerminer 1.5.1 · TowerWalk PoW',disabled:false}];
+ if(coin==='RGR')return[{id:'auto',label:'Recommended · Rigor OpuHash CPU Miner 0.2.0',disabled:false},{id:'rigor-miner-0.2.0',label:'Rigor Miner 0.2.0 · OpuHash PoW',disabled:false}];
  return [{id:'auto',label:'Recommended · Engine Ready',disabled:false}];
 }
 function validChoice(coin,id){return choices(coin).some(c=>!c.disabled&&c.id===id)}
@@ -32,6 +33,7 @@ function resolve(config){
  if(config.coin==='MDS')return{id:'mds-miner-1.0.0',name:'Midstate BLAKE3 Miner',version:'1.0.0',exe:'mds-miner.exe',selection,installed:true};
  if(config.coin==='NRB')return{id:'nrb-cpu-1.0.0',name:'Nerbus VerusHash CPU Miner',version:'1.0.0',exe:'nrb-miner.exe',selection,installed:true};
  if(config.coin==='JTM')return{id:'towerminer-1.5.1',name:'towerminer',version:'1.5.1',exe:'towerminer.exe',selection,installed:true};
+ if(config.coin==='RGR')return{id:'rigor-miner-0.2.0',name:'Rigor OpuHash CPU Miner',version:'0.2.0',exe:'rigor-miner.exe',selection,installed:true};
  return{id:ID,selection,...KRIG};
 }
 module.exports={KRIG,choices,validChoice,resolve};

@@ -47,6 +47,7 @@
     <button data-view="mining" data-nav-kind="CPU"><span class="nav-icon">💻</span> CPU Studio <span class="nav-new-pill">v1.0.4</span></button>
     
     <div class="nav-section-title">ENGINES & RIGS</div>
+    <button data-view="miners"><span class="nav-icon">⚡</span> Engine Manager <span class="nav-new-pill">1-CLICK</span></button>
     <button data-view="vps"><span class="nav-icon">☁</span> Remote VPS</button>
     <button data-view="logs"><span class="nav-icon">▣</span> Live Logs</button>
     
@@ -237,6 +238,7 @@
             <span id="kernel-state">Engine Ready</span>
             <span id="fee-note" class="muted">Integrated Dev Fee: 1.0% verified time-share</span>
             <button id="install" class="right secondary-btn">Verify Kernel</button>
+            <button type="button" id="miners-manager-btn" class="secondary-btn" style="margin-left:6px; font-weight:600; color:var(--accent);">⚡ 1-Click Update & Test</button>
             <button data-open="kernel" class="link">Source ↗</button>
           </div>
         </article>
@@ -597,6 +599,14 @@ The engine will deploy in background on your remote Linux server and stream logs
           <button id="update-download" class="secondary-btn" disabled>Download ↗</button>
         </div>
 
+        <div class="setting" style="margin-top:10px; padding:10px; background:var(--bg-card); border:1px solid var(--border); border-radius:6px; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <b>1-Click All-Miners Management</b>
+            <small>Test diagnostic health or update any of the 14 cryptocurrency miners in one click.</small>
+          </div>
+          <button id="open-miners-manager-settings" class="primary" style="white-space:nowrap; padding:6px 14px; font-weight:600;">Open Engine Manager ⚡</button>
+        </div>
+
         <div class="setting">
           <div>
             <b>Opt-In Benchmark Sharing</b>
@@ -658,6 +668,50 @@ The engine will deploy in background on your remote Linux server and stream logs
       <div class="info-rules">Rules: Price change ≥ 2% in 5 min | Net Profit Surge ≥ 10% | Catalog check every 2 min</div>
       <div id="info-list"></div>
       <div class="note">Real-time alerts generated directly from live decentralized networks and pool ledgers.</div>
+    </section>
+    <!-- 8. MINERS & ENGINES 1-CLICK MANAGER VIEW -->
+    <section class="view" id="miners">
+      <div class="section-bar">
+        <div>
+          <b>1-Click Miner & Engine Manager <span class="badge live-badge">14 MINERS</span></b>
+          <div class="muted" style="font-size:11px; margin-top:2px;">Self-test diagnostics and update any miner in 1 click. Zero manual downloads.</div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button id="btn-miners-test-all" class="secondary-btn" style="font-weight:600;">🧪 1-Click Test All</button>
+          <button id="btn-miners-update-all" class="primary" style="font-weight:700; background:linear-gradient(135deg, #10b981, #059669); border:none; box-shadow:0 0 10px rgba(16,185,129,0.35);">⚡ 1-Click Update All</button>
+        </div>
+      </div>
+
+      <div class="miners-stats-bar panel" style="display:flex; justify-content:space-around; align-items:center; padding:12px; margin-bottom:12px; background:var(--bg-card); border:1px solid var(--border); border-radius:8px;">
+        <div style="text-align:center;">
+          <small class="muted">TOTAL ENGINES</small>
+          <div style="font-size:18px; font-weight:700; color:var(--text);" id="miners-stat-total">14</div>
+        </div>
+        <div style="height:24px; width:1px; background:var(--border);"></div>
+        <div style="text-align:center;">
+          <small class="muted">INSTALLED & READY</small>
+          <div style="font-size:18px; font-weight:700; color:var(--accent);" id="miners-stat-ready">14 / 14</div>
+        </div>
+        <div style="height:24px; width:1px; background:var(--border);"></div>
+        <div style="text-align:center;">
+          <small class="muted">DIAGNOSTIC VERIFIED</small>
+          <div style="font-size:18px; font-weight:700; color:#10b981;" id="miners-stat-tested">14 / 14</div>
+        </div>
+      </div>
+
+      <!-- MINERS LIST GRID -->
+      <div id="miners-list-container" class="miners-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(350px, 1fr)); gap:12px; margin-bottom:16px;"></div>
+
+      <!-- LIVE DIAGNOSTIC CONSOLE -->
+      <article class="panel" style="margin-top:12px;">
+        <div class="panel-head">
+          <b>Diagnostic & Update Realtime Console</b>
+          <button id="miners-clear-log" class="link right">Clear Output</button>
+        </div>
+        <div id="miners-console-logs" style="height:130px; overflow-y:auto; background:#07080b; padding:8px 12px; font-family:monospace; font-size:11px; border-radius:4px; border:1px solid rgba(255,255,255,0.06);">
+          <div class="miners-log-line" style="color:#64748b;">[System] Engine manager ready. Click "1-Click Test All" to verify all 14 miners or update individual miners.</div>
+        </div>
+      </article>
     </section>
   </main>
 
@@ -730,6 +784,7 @@ The engine will deploy in background on your remote Linux server and stream logs
 <script src="rentals.js"></script>
 <script src="dual.js"></script>
 <script src="kernel-library.js"></script>
+  <script src="miners-manager.js"></script>
 <script src="large-pages.js"></script>
 </body>
 </html>

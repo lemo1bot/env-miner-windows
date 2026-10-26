@@ -901,3 +901,134 @@ footer {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--neon-green) !important;
 }
+
+
+/* ==========================================================================
+   1-CLICK MINER & ENGINE MANAGER STYLING
+   ========================================================================== */
+.miners-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 12px;
+}
+
+.miner-card {
+  background: var(--bg-card, #12131a);
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.08));
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.miner-card:hover {
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.miner-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding-bottom: 8px;
+}
+
+.miner-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.coin-badge {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.miner-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+}
+
+.miner-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.miner-card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.miner-card-actions button {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.btn-update-single {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  color: #fff !important;
+  border: none !important;
+}
+
+.btn-update-single:hover {
+  filter: brightness(1.15);
+}
+
+.miners-log-line {
+  line-height: 1.5;
+  margin-bottom: 2px;
+}
+
+.miners-log-success {
+  color: #34d399 !important;
+}
+
+.miners-log-error {
+  color: #f87171 !important;
+}
+
+.miners-log-info {
+  color: #94a3b8 !important;
+}
+
+.badge-success {
+  background: rgba(16, 185, 129, 0.18) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+}
+
+.badge-danger {
+  background: rgba(239, 68, 68, 0.18) !important;
+  color: #f87171 !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+.badge-neutral {
+  background: rgba(148, 163, 184, 0.12) !important;
+  color: #94a3b8 !important;
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+}
+
+.tag-pill {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
