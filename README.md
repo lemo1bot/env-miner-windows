@@ -34,7 +34,9 @@ Download the latest preconfigured standalone package:
 ---
 
 ## 🚀 Key Features
-- **Modern Left-Sidebar UI**: Dark obsidian + cyber green terminal aesthetic.
+- **1-Click Engine Manager**: Update or test any of the 14 cryptocurrency miner engines with a single click. Zero manual downloads, extraction, or configuration needed.
+- **Dedicated GPU & CPU Studios**: Tailored workflows for GPU compute cards and multi-threaded CPU architectures.
+- **Modern Obsidian Cyber UI**: Professional dark obsidian palette with frosted-glass panels and neon emerald/cyan accents.
 - **Preconfigured Pools**: Configured for official community pools including bntpool.com, commonfoundry, nacre, ariabrain, midstate, nerbus, jetsam, and rigor nodes.
 - **CPU & GPU Multi-Threading**: Granular thread and device allocation for optimal hashrates and system responsiveness.
 - **Remote Cloud VPS Mining**: Connect and mine directly to remote Linux VPS / cloud rigs over SSH.
