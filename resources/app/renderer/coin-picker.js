@@ -22,10 +22,10 @@
     studioBadge.textContent = kind === 'CPU' ? 'CPU STUDIO' : kind === 'GPU' ? 'GPU STUDIO' : kind === 'NEW' ? 'v1.0.4 ENGINES' : 'MULTI-ALGORITHM';
   }
   if(state && state.coins) {
-    if(kind === 'CPU' && !['ZCD','BNT','NRB','JTM','RGR'].includes(state.config.coin)) {
+    if(kind === 'CPU' && !['ZCD','BNT','NRB','JTM'].includes(state.config.coin)) {
+      chooseCoin('ZCD');
+    } else if(kind === 'GPU' && ['ZCD','BNT','NRB','JTM'].includes(state.config.coin)) {
       chooseCoin('RGR');
-    } else if(kind === 'GPU' && ['ZCD','BNT','NRB','JTM','RGR'].includes(state.config.coin)) {
-      chooseCoin('MDS');
     }
   }
   if(state) window.renderCoinPicker(state);
@@ -57,7 +57,7 @@
     const b=$('#coin-tabs').querySelector('[data-coin="'+c.symbol+'"]');
     if(!b) continue;
     const isNew = NEW_COINS.includes(c.symbol);
-    const matchesFilter = kind === 'all' || (kind === 'NEW' ? isNew : (c.hardware||'GPU') === kind);
+    const isGpu = !c.hardware || c.hardware.includes('GPU'); const isCpu = c.hardware && c.hardware.includes('CPU'); const matchesFilter = kind === 'all' || (kind === 'NEW' ? isNew : kind === 'GPU' ? isGpu : kind === 'CPU' ? isCpu : (c.hardware||'GPU') === kind);
     b.hidden=!matchesFilter || !`${c.symbol} ${c.name} ${c.algorithm}`.toLowerCase().includes(query);
     if(!b.hidden) count++;
     b.disabled=!s.ready;
@@ -76,7 +76,7 @@
  });
 
  window.renderCpuMining=s=>{
-  const cpu=['ZCD','BNT','NRB','JTM','RGR'].includes(s.config.coin),blocked=busy(s);
+  const cpu=['ZCD','BNT','NRB','JTM'].includes(s.config.coin),blocked=busy(s);
   tuning.hidden=s.config.coin!=='BNT'||s.kernel.adapter==='bnt-seine';
   tuneButton.disabled=blocked||!s.kernel.installed;
   cancelTune.hidden=!s.bntTuning?.running;

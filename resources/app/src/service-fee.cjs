@@ -74,7 +74,7 @@ class FeeController{
  await this.miner.start(cfg,this.hardware,this.phase==='user'&&this.benchmark);if(epoch!==this.epoch||!this.active){await this.miner.stop('Schedule cancelled');return}
  }finally{this.switching=false;this.changed()}}
  fail(e){this.log('Fee','Schedule exception: '+e.message);this.stop('Dev fee schedule failed').catch(()=>{})}
- checkHardware(hw){this.hardware=hw;if(!this.active&&!this.switching)return;for(const id of (['ZCD','BNT','NRB','JTM','RGR'].includes(this.cfg?.coin)?this.miner.session?.selected||[]:this.cfg?.selected||[])){const g=miningDevices(this.cfg,hw).find(g=>g.id===id),s=g?.sensors,j=this.miner.jobs.get(id);if(!g||(s&&Date.now()-s.at<10000&&s.temp>=this.cfg.temperature)||(j?.hadSensor&&(!s||Date.now()-s.at>=10000))){this.stop('Hardware safety halt: temperature threshold or sensor lost').catch(()=>{});return}}}
+ checkHardware(hw){this.hardware=hw;if(!this.active&&!this.switching)return;const isCpu=['ZCD','BNT','NRB','JTM'].includes(this.cfg?.coin)||(this.cfg?.coin==='RGR'&&this.cfg?.workbenchMode==='cpu');for(const id of (isCpu?this.miner.session?.selected||[]:this.cfg?.selected||[])){const g=miningDevices(this.cfg,hw).find(g=>g.id===id),s=g?.sensors,j=this.miner.jobs.get(id);if(!g||(s&&Date.now()-s.at<10000&&s.temp>=this.cfg.temperature)||(j?.hadSensor&&(!s||Date.now()-s.at>=10000))){this.stop('Hardware safety halt: temperature threshold or sensor lost').catch(()=>{});return}}}
  async stop(reason='User stopped'){
  if(this.stopping)return this.stopping;
  ++this.epoch;clearInterval(this.timer);clearTimeout(this.watchdog);

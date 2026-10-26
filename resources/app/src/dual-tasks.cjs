@@ -1,7 +1,7 @@
 'use strict';
 const {resolve,choices}=require('./kernel-catalog.cjs');
 const {poolChoices}=require('./pool-catalog.cjs');
-const GPU_COINS=['PRL','QTC','NOID','YSR','CMFD','NACR','XID','TSC','MDS'];
+const GPU_COINS=['PRL','QTC','NOID','YSR','CMFD','NACR','XID','TSC','MDS','RGR'];
 const PROFILE_KEYS=['coin','performance','worker','selected','hashWindowMinutes','cpuThreads','zcdPassword','wallets','pools','poolBackups','kernels','noidConnection'];
 function taskConfig(base,id){
  if(!['gpu','cpu'].includes(id))throw Error('Invalid task');

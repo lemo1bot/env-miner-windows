@@ -9,12 +9,12 @@ const MINER_DEFINITIONS = [
     coin: 'RGR',
     name: 'Rigor',
     kernelId: 'rigor-miner-0.2.0',
-    engineName: 'Rigor OpuHash CPU Miner',
-    version: '0.2.0',
-    exe: 'rigor-core.exe',
-    algorithm: 'OpuHash PoW',
-    hardware: 'CPU',
-    tag: 'v1.0.4 NEW'
+    engineName: 'Rigor OpuHash GPU Miner',
+    version: '1.0.0',
+    exe: 'rigor-miner.exe',
+    algorithm: 'OpuHash SHA3-256',
+    hardware: 'GPU (CUDA) / CPU',
+    tag: 'CUDA'
   },
   {
     coin: 'MDS',
