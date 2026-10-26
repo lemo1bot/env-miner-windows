@@ -33,7 +33,7 @@ function resolve(config){
  if(config.coin==='MDS')return{id:'mds-miner-1.0.0',name:'Midstate BLAKE3 Miner',version:'1.0.0',exe:'mds-miner.exe',selection,installed:true};
  if(config.coin==='NRB')return{id:'nrb-cpu-1.0.0',name:'Nerbus VerusHash CPU Miner',version:'1.0.0',exe:'nrb-miner.exe',selection,installed:true};
  if(config.coin==='JTM')return{id:'towerminer-1.5.1',name:'towerminer',version:'1.5.1',exe:'towerminer.exe',selection,installed:true};
- if(config.coin==='RGR')return{id:'rigor-miner-0.2.0',name:'Rigor OpuHash CPU Miner',version:'0.2.0',exe:'rigor-miner.exe',selection,installed:true};
+ if(config.coin==='RGR')return{id:'rigor-miner-0.2.0',name:'Rigor OpuHash CPU Miner',version:'0.2.0',exe:'rigor-core.exe',selection,installed:true};
  return{id:ID,selection,...KRIG};
 }
 module.exports={KRIG,choices,validChoice,resolve};

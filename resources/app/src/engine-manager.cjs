@@ -11,7 +11,7 @@ const MINER_DEFINITIONS = [
     kernelId: 'rigor-miner-0.2.0',
     engineName: 'Rigor OpuHash CPU Miner',
     version: '0.2.0',
-    exe: 'rigor-miner.exe',
+    exe: 'rigor-core.exe',
     algorithm: 'OpuHash PoW',
     hardware: 'CPU',
     tag: 'v1.0.4 NEW'
